@@ -1,0 +1,23 @@
+
+# Environment dan credential
+.env
+.env.*
+!.env.example
+
+# Backup database
+*.sql
+*.sql.gz
+
+# Backup dan arsip
+*.zip
+*.tar
+*.tar.gz
+
+# File sistem dan editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Log
+*.log

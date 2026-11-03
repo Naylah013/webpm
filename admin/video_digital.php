@@ -1,5 +1,6 @@
 <?php
 include "../koneksi.php";
+/** @var mysqli $koneksi */
 include 'header.php';
 
 $program_video=query("SELECT * FROM program_video");

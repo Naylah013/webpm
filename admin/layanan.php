@@ -1,5 +1,6 @@
 <?php
 include "../koneksi.php";
+/** @var mysqli $koneksi */
 include 'header.php';
 
 $layanan=query("SELECT * FROM layanan");

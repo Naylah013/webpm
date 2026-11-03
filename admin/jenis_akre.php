@@ -1,5 +1,6 @@
 <?php
 include "../koneksi.php";
+/** @var mysqli $koneksi */
 include 'header.php';
 
 $jenis_akreditasi=query("SELECT * FROM jenis_akreditasi");

@@ -7,6 +7,7 @@ use PHPMailer\PHPMailer\Exception;
 
 require '../vendor/autoload.php';
 include '../koneksi.php';
+/** @var mysqli $koneksi */
 
 // ==========================
 // VALIDASI ID

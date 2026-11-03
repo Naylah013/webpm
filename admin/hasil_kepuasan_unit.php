@@ -1,5 +1,6 @@
 <?php
 include "../koneksi.php";
+/** @var mysqli $koneksi */
 include 'header.php';
 
 $hasil_kepuasan_unit=query("SELECT * FROM hasil_kepuasan_unit");

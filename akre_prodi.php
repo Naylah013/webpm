@@ -2,10 +2,6 @@
 include "koneksi.php";
 
 $hari_ini = date('Y-m-d');
-
-// ============================================================
-// QUERY UTAMA: akreditasi TERBARU per prodi (MAX tanggal_berakhir)
-// ============================================================
 $filterJurusan = "";
 if (isset($_GET['nama_jurusan']) && $_GET['nama_jurusan'] != "") {
     $selectedJurusan = mysqli_real_escape_string($koneksi, $_GET['nama_jurusan']);
@@ -143,8 +139,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
     .table-custom tbody td { padding: 15px; border-bottom: 1px solid #e9ecef; color: #495057; vertical-align: middle; }
     .table-custom tbody tr { transition: 0.2s; }
     .table-custom tbody tr:hover { background-color: #f8fbff; }
-    .badge-expire { background-color: #fff3cd; color: #856404; font-weight: 600; padding: 6px 12px; border-radius: 6px; font-size: 13px; }
-    .badge-aktif { background-color: #d1e7dd; color: #0f5132; font-weight: 600; padding: 6px 12px; border-radius: 6px; font-size: 13px; }
   </style>
 </head>
 
@@ -220,7 +214,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
             <div class="row g-3 mb-4 align-items-center">
               <div class="col-lg-2">
                 <div class="position-relative mx-auto" style="width: 150px; height: 150px;">
-                  <!-- ID ini yang tadinya salah, sekarang sudah benar -->
                   <canvas id="donutChartNasional"></canvas>
                   <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events: none;">
                     <h3 class="mb-0 fw-bold" style="color: #1e2b4c;"><?= $total_semua_nas ?></h3>
@@ -301,12 +294,11 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                     <thead>
                       <tr>
                         <th width="4%" class="text-center">No</th>
-                        <th width="25%">Program Studi</th>
+                        <th width="30%">Program Studi</th>
                         <th class="text-center">Predikat</th>
                         <th class="text-center">Lembaga</th>
                         <th class="text-center">Tanggal Mulai</th>
                         <th class="text-center">Tanggal Berakhir</th>
-                        <th class="text-center">Status</th>
                         <th class="text-center">Aksi</th>
                       </tr>
                     </thead>
@@ -324,13 +316,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                             <td class="text-center text-muted"><?= date('d M Y', strtotime($prodi['tanggal_mulai'])) ?></td>
                             <td class="text-center text-muted"><?= date('d M Y', strtotime($prodi['tanggal_berakhir'])) ?></td>
                             <td class="text-center">
-                              <?php if($prodi['is_expire']): ?>
-                                <span class="badge-expire">Expire < 1 Thn</span>
-                              <?php else: ?>
-                                <span class="badge-aktif">Aktif</span>
-                              <?php endif; ?>
-                            </td>
-                            <td class="text-center">
                               <a href="akre_prodi_detail.php?id=<?= $prodi['id_prodi'] ?>" class="btn btn-sm btn-outline-primary rounded-pill">
                                 <i class="bi bi-eye"></i> Detail
                               </a>
@@ -339,7 +324,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                         <?php endforeach; ?>
                       <?php else: ?>
                         <tr>
-                          <td colspan="8" class="text-center py-5">
+                          <td colspan="7" class="text-center py-5">
                             <div class="text-muted mb-2"><i class="bi bi-folder-x fs-1"></i></div>
                             <h6 class="fw-bold text-dark">Belum Ada Data</h6>
                             <p class="small text-muted mb-0">Data akreditasi program studi nasional belum diisi oleh admin.</p>
@@ -360,7 +345,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
             <div class="row g-3 mb-4 align-items-center">
               <div class="col-lg-2">
                 <div class="position-relative mx-auto" style="width: 150px; height: 150px;">
-                  <!-- ID ini yang tadinya salah, sekarang sudah benar -->
                   <canvas id="donutChartInternasional"></canvas>
                   <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events: none;">
                     <h3 class="mb-0 fw-bold" style="color: #1e2b4c;"><?= $total_semua_int ?></h3>
@@ -441,12 +425,11 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                     <thead>
                       <tr>
                         <th width="4%" class="text-center">No</th>
-                        <th width="25%">Program Studi</th>
+                        <th width="30%">Program Studi</th>
                         <th class="text-center">Predikat</th>
                         <th class="text-center">Lembaga</th>
                         <th class="text-center">Tanggal Mulai</th>
                         <th class="text-center">Tanggal Berakhir</th>
-                        <th class="text-center">Status</th>
                         <th class="text-center">Aksi</th>
                       </tr>
                     </thead>
@@ -464,13 +447,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                             <td class="text-center text-muted"><?= date('d M Y', strtotime($prodi_int['tanggal_mulai'])) ?></td>
                             <td class="text-center text-muted"><?= date('d M Y', strtotime($prodi_int['tanggal_berakhir'])) ?></td>
                             <td class="text-center">
-                              <?php if($prodi_int['is_expire']): ?>
-                                <span class="badge-expire">Expire < 1 Thn</span>
-                              <?php else: ?>
-                                <span class="badge-aktif">Aktif</span>
-                              <?php endif; ?>
-                            </td>
-                            <td class="text-center">
                               <a href="akre_prodi_detail.php?id=<?= $prodi_int['id_prodi'] ?>" class="btn btn-sm btn-outline-primary rounded-pill">
                                 <i class="bi bi-eye"></i> Detail
                               </a>
@@ -479,7 +455,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                         <?php endforeach; ?>
                       <?php else: ?>
                         <tr>
-                          <td colspan="8" class="text-center py-5">
+                          <td colspan="7" class="text-center py-5">
                             <div class="text-muted mb-2"><i class="bi bi-globe fs-1"></i></div>
                             <h6 class="fw-bold text-dark">Belum Ada Data Internasional</h6>
                             <p class="small text-muted mb-0">Data akreditasi program studi internasional belum diisi oleh admin.</p>
@@ -734,14 +710,14 @@ while ($j = mysqli_fetch_assoc($qJur)) {
       });
 
       // 1. JUDUL Akreditaisi
-      worksheet.mergeCells('A1:H1');
+      worksheet.mergeCells('A1:G1'); // Ubah dari H1 ke G1 karena kolom berkurang
       const titleCell = worksheet.getCell('A1');
       titleCell.value = title;
       titleCell.font = { name: 'Arial', size: 16, bold: true, color: { argb: 'FF17365D' } };
       titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
       worksheet.getRow(1).height = 35;
 
-      worksheet.mergeCells('A2:H2');
+      worksheet.mergeCells('A2:G2'); // Ubah dari H2 ke G2
       const subTitleCell = worksheet.getCell('A2');
       subTitleCell.value = 'Politeknik Negeri Batam - Pusat Penjaminan Mutu dan Pengembangan Pembelajaran';
       subTitleCell.font = { name: 'Arial', size: 10, italic: true, color: { argb: 'FF555555' } };
@@ -749,7 +725,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
       worksheet.getRow(2).height = 20;
 
       // Garis pemisah judul
-      worksheet.mergeCells('A3:H3');
+      worksheet.mergeCells('A3:G3'); // Ubah dari H3 ke G3
       const lineCell = worksheet.getCell('A3');
       lineCell.value = '';
       lineCell.border = { bottom: { style: 'medium', color: { argb: 'FF17365D' } } };
@@ -757,7 +733,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
 
       // 2. HEADER TABEL (Baris 5, jarak 1 baris)
       const headerRow = worksheet.getRow(5);
-      headerRow.values = ['No', 'Jurusan', 'Program Studi', 'Predikat', 'Lembaga', 'Tgl Mulai', 'Tgl Berakhir', 'Status'];
+      headerRow.values = ['No', 'Jurusan', 'Program Studi', 'Predikat', 'Lembaga', 'Tgl Mulai', 'Tgl Berakhir']; // Status dihapus
       
       // Set lebar kolom
       worksheet.columns = [
@@ -767,8 +743,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
         { key: 'predikat', width: 18 },
         { key: 'lembaga', width: 35 }, 
         { key: 'mulai', width: 15 },
-        { key: 'berakhir', width: 15 },
-        { key: 'status', width: 22 }
+        { key: 'berakhir', width: 15 }
       ];
 
       // Styling Header
@@ -813,11 +788,10 @@ while ($j = mysqli_fetch_assoc($qJur)) {
           const mulai = cols[4].innerText.trim();
           const berakhir = cols[5].innerText.trim();
           
-          const is_expire = row.getAttribute('data-expire') === '1';
-          const status = is_expire ? 'Masa Expire < 1 Thn' : 'Aktif';
-
+          // Index status dihapus, karena di baris html sudah tidak ada
+          
           const dataRow = worksheet.getRow(currentRowIndex);
-          dataRow.values = [rowCounter++, jurusan, prodi, predikat, lembaga, mulai, berakhir, status];
+          dataRow.values = [rowCounter++, jurusan, prodi, predikat, lembaga, mulai, berakhir]; // Status dihapus
 
           const jurusanBgColor = getJurusanColor(jurusan);
 
@@ -835,15 +809,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
               right: { style: 'thin', color: { argb: 'FFD6DCE5' } }
             };
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: jurusanBgColor } };
-
-            if (colNumber === 8) {
-              if (is_expire) {
-                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF2CC' } };
-                cell.font = { name: 'Arial', size: 11, color: { argb: 'FF805600' }, bold: true };
-              } else {
-                cell.font = { name: 'Arial', size: 11, color: { argb: 'FF1A7F4B' }, bold: true };
-              }
-            }
           });
           
           // TINGGI BARIS OTOMATIS
@@ -856,7 +821,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
         }
       });
 
-      worksheet.pageSetup.printArea = `A1:H${currentRowIndex - 1}`;
+      worksheet.pageSetup.printArea = `A1:G${currentRowIndex - 1}`;
 
       workbook.xlsx.writeBuffer().then(function(buffer) {
         saveAs(new Blob([buffer], { type: 'application/octet-stream' }), fileName);

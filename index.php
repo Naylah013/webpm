@@ -23,7 +23,6 @@
 </head>
 
 <body class="index-page">
-
   <header id="header" class="header d-flex align-items-center fixed-top">
     <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
       
@@ -61,28 +60,22 @@
           <li><a href="berita.php">Berita</a></li>
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-       </nav>
+      </nav>
       <a class="btn-getstarted" href="login.php">Login</a>
-
     </div>
   </header>
 
   <main class="main">
-
     <!-- Hero Section -->
     <section id="hero" class="hero section">
-
       <div class="container" data-aos="fade-up" data-aos-delay="100">
-
         <div class="row align-items-center">
           <div class="col-lg-6">
             <div class="hero-content" data-aos="fade-up" data-aos-delay="200">
-
               <h1 class="mb-4">
                 Pusat Penjaminan Mutu dan<br>
                 <span class="accent-text">Pengembangan Pembelajaran</span>
               </h1>
-
               <p class="mb-4 mb-md-5">
               Berkomitmen menciptakan budaya mutu dalam pembelajaran melalui inovasi, evaluasi berkelanjutan, 
               dan pengembangan akreditasi program studi di Politeknik Negeri Batam untuk mendorong keunggulan akademik.              </p>
@@ -102,86 +95,82 @@
             </div>
           </div>
         </div>
-
       </div>
-
     </section>
-    <!-- /Hero Section -->
 
-<!-- About Section -->
-<section id="about" class="about section">
-  <div class="container" data-aos="fade-up" data-aos-delay="100">
-    <div class="row gy-4 align-items-center justify-content-between">
-      <div class="col-xl-12" data-aos="fade-up" data-aos-delay="200">
-        <h5 class="about-title">Tentang Kami</h5>
+    <!-- About Section -->
+    <section id="about" class="about section">
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-4 align-items-center justify-content-between">
+          <div class="col-xl-12" data-aos="fade-up" data-aos-delay="200">
+            <h5 class="about-title">Tentang Kami</h5>
 
-        <!-- Fungsi P4M -->
-        <div class="row feature-list-wrapper mb-4"> <!-- Menambahkan mb-4 untuk margin bawah -->
-          <div class="col-md-6">
-            <h6 class="about-meta">Fungsi P4M</h6>
-            <ul class="feature-list">
-              <li><i class="bi bi-check-circle-fill"></i> Melaksanakan dan Mengkoordinasikan kegiatan Penjaminan Mutu.</li>
-              <li><i class="bi bi-check-circle-fill"></i> Melaksanakan administrasi Unit Penjaminan Mutu.</li>
-              <li><i class="bi bi-check-circle-fill"></i> Melaksanakan Penjaminan mutu pendidikan, penelitian, dan pengabdian kepada masyarakat serta seluruh unit penunjang.</li>
-              <li><i class="bi bi-check-circle-fill"></i> Menyelenggarakan Pengembangan sistem penjaminan mutu dengan merencanakan dan mengusulkan pegembangan Penjaminan Mutu.</li>
-              <li><i class="bi bi-check-circle-fill"></i> Melaksanakan kegiatan insidental tahunan Penjaminan Mutu.</li>
-            </ul>
-          </div>
-          <div class="col-md-6">
-            <h6 class="about-meta">Layanan P4M</h6>
-            <ul class="feature-list">
-              <li><i class="bi bi-check-circle-fill"></i> Layanan Pengelolaan Administrasi media pembelajaran e-learning.</li>
-              <li><i class="bi bi-check-circle-fill"></i> Layanan Penyediaan Dokumen Proses Bisnis.</li>
-              <li><i class="bi bi-check-circle-fill"></i> Layanan Pengaduan/Ketidaksesuain Penerapan SPMI.</li>
-              <li><i class="bi bi-check-circle-fill"></i> Layanan Pelatihan Pengembangan Pedadogik Dosen. </li>
-            </ul>
-          </div>
-        </div>
+            <!-- Fungsi P4M -->
+            <div class="row feature-list-wrapper mb-4"> <!-- Menambahkan mb-4 untuk margin bawah -->
+              <div class="col-md-6">
+                <h6 class="about-meta">Fungsi P4M</h6>
+                <ul class="feature-list">
+                  <li><i class="bi bi-check-circle-fill"></i> Melaksanakan dan Mengkoordinasikan kegiatan Penjaminan Mutu.</li>
+                  <li><i class="bi bi-check-circle-fill"></i> Melaksanakan administrasi Unit Penjaminan Mutu.</li>
+                  <li><i class="bi bi-check-circle-fill"></i> Melaksanakan Penjaminan mutu pendidikan, penelitian, dan pengabdian kepada masyarakat serta seluruh unit penunjang.</li>
+                  <li><i class="bi bi-check-circle-fill"></i> Menyelenggarakan Pengembangan sistem penjaminan mutu dengan merencanakan dan mengusulkan pegembangan Penjaminan Mutu.</li>
+                  <li><i class="bi bi-check-circle-fill"></i> Melaksanakan kegiatan insidental tahunan Penjaminan Mutu.</li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <h6 class="about-meta">Layanan P4M</h6>
+                <ul class="feature-list">
+                  <li><i class="bi bi-check-circle-fill"></i> Layanan Pengelolaan Administrasi media pembelajaran e-learning.</li>
+                  <li><i class="bi bi-check-circle-fill"></i> Layanan Penyediaan Dokumen Proses Bisnis.</li>
+                  <li><i class="bi bi-check-circle-fill"></i> Layanan Pengaduan/Ketidaksesuain Penerapan SPMI.</li>
+                  <li><i class="bi bi-check-circle-fill"></i> Layanan Pelatihan Pengembangan Pedadogik Dosen. </li>
+                </ul>
+              </div>
+            </div>
 
-        <!-- Info Wrapper -->
-        <div class="info-wrapper mb-4"> <!-- Menambahkan mb-4 untuk margin bawah -->
-          <div class="row gy-4">
-            <div class="col-lg-6">
-              <div class="profile d-flex align-items-center gap-3">
-                <img src="assets/img/avatar-3.webp" alt="CEO Profile" class="profile-image">
-                <div>
-                  <h4 class="profile-name">Evaliata BR.Sembiring, S.Kom, M.Cs</h4>
-                  <p class="profile-position">Kepala Unit P4M</p>
+            <!-- Info Wrapper -->
+            <div class="info-wrapper mb-4"> <!-- Menambahkan mb-4 untuk margin bawah -->
+              <div class="row gy-4">
+                <div class="col-lg-6">
+                  <div class="profile d-flex align-items-center gap-3">
+                    <img src="assets/img/avatar-3.webp" alt="CEO Profile" class="profile-image">
+                    <div>
+                      <h4 class="profile-name">Evaliata BR.Sembiring, S.Kom, M.Cs</h4>
+                      <p class="profile-position">Kepala Unit P4M</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="contact-info d-flex align-items-center gap-2">
+                    <i class="bi bi-telephone-fill"></i>
+                    <div>
+                      <p class="contact-label">Hubungi Kami</p>
+                      <p class="contact-number">1036</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="col-lg-6">
-              <div class="contact-info d-flex align-items-center gap-2">
-                <i class="bi bi-telephone-fill"></i>
-                <div>
-                  <p class="contact-label">Hubungi Kami</p>
-                  <p class="contact-number">1036</p>
-                </div>
+
+            <h6 class="about-meta">Staf P4M</h6>
+            <!-- Staf P4M -->
+            <div class="row feature-list-wrapper">
+              <div class="col-md-6">
+                <ul class="feature-list">
+                  <li><i class="bi bi-check-circle-fill"></i> Lidya Mariska , S.Tr.Ab</li>
+                  <li><i class="bi bi-check-circle-fill"></i> Titin Sumarni, S.Tr.Ak</li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <ul class="feature-list">
+                  <li><i class="bi bi-check-circle-fill"></i> M.Fadli Kumangki, S.Tr.Kom</li>
+                </ul>
               </div>
             </div>
-          </div>
-        </div>
-
-        <h6 class="about-meta">Staf P4M</h6>
-        <!-- Staf P4M -->
-        <div class="row feature-list-wrapper">
-          <div class="col-md-6">
-            <ul class="feature-list">
-              <li><i class="bi bi-check-circle-fill"></i> Lidya Mariska , S.Tr.Ab</li>
-              <li><i class="bi bi-check-circle-fill"></i> Titin Sumarni, S.Tr.Ak</li>
-            </ul>
-          </div>
-          <div class="col-md-6">
-            <ul class="feature-list">
-              <li><i class="bi bi-check-circle-fill"></i> M.Fadli Kumangki, S.Tr.Kom</li>
-            </ul>
           </div>
         </div>
       </div>
-
-    </div>
-  </div>
-</section>
+    </section>
 
     <!-- Features Section -->
     <section id="features" class="features section">
@@ -193,11 +182,8 @@
       </div><!-- End Section Title -->
 
       <div class="container">
-
         <div class="d-flex justify-content-center">
-
           <ul class="nav nav-tabs" data-aos="fade-up" data-aos-delay="100">
-            
             <!-- Tab nav item -->
             <li class="nav-item">
               <a class="nav-link active show" data-bs-toggle="tab" data-bs-target="#features-tab-1">
@@ -239,13 +225,15 @@
                 <h4>SIMANIS</h4>
               </a>
             </li>
-
+            <li class="nav-item">
+              <a class="nav-link" data-bs-toggle="tab" data-bs-target="#features-tab-9">
+                <h4>TUNTAS</h4>
+              </a>
+            </li>
           </ul>
-
         </div>
 
-        <div class="tab-content" data-aos="fade-up" data-aos-delay="200">
-          
+        <div class="tab-content" data-aos="fade-up" data-aos-delay="200">         
           <!-- Konten Tab 1 -->
           <div class="tab-pane fade active show" id="features-tab-1">
             <div class="row">
@@ -456,19 +444,42 @@
             </div>
           </div>
 
-  </div>
-</div>
+          <!-- Konten Tab 9 -->
+          <div class="tab-pane fade" id="features-tab-9">
+            <div class="row">
+              <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0 d-flex flex-column justify-content-center">
+                <h3>TUNTAS</h3>
+                <p class="fst-italic">
+                TUNTAS Polibatam merupakan sistem pelaporan ketidaksesuaian dan pengaduan resmi di lingkungan 
+                Politeknik Negeri Batam. Aplikasi ini memberikan kemudahan bagi civitas akademika maupun pihak terkait 
+                untuk menyampaikan masukan, kritik, dan laporan mengenai berbagai permasalahan di lingkungan kampus 
+                secara mudah dan aman. Melalui TUNTAS, setiap laporan dapat ditelusuri menggunakan nomor tiket unik 
+                sehingga pelapor dapat memantau perkembangan tindak lanjut laporan.
+                <h5><b>Fitur Aplikasi</b></h5>
+                <ul>
+                  <li><i class="bi bi-check2-all"></i> <span>Pelaporan secara anonim tanpa perlu login.</span></li>
+                  <li><i class="bi bi-check2-all"></i> <span>Nomor tiket otomatis sebagai bukti laporan.</span></li>
+                  <li><i class="bi bi-check2-all"></i> <span>Pelacakan status dan progres tindak lanjut laporan</span></li>
+                  <li><i class="bi bi-check2-all"></i> <span>Penerusan laporan kepada unit kerja terkait.</span></li>
+                  <li><i class="bi bi-check2-all"></i> <span>Pengelolaan dan tindak lanjut laporan oleh unit kerja.</span></li>
+                  <li><i class="bi bi-check2-all"></i> <span>Rekapitulasi hasil laporan sebagai bahan evaluasi.</span></li>
+                </ul>
+                <div>
+                  <a href="https://tuntas.polibatam.ac.id/" >Akses Aplikasi</a>
+                </div>
+              </div>
+              <div class="col-lg-6 order-1 order-lg-2 text-center">
+                <img src="assets/img/tuntas.jpg" alt="" class="img-fluid">
+              </div>
+            </div>
+          </div>
         </div>
-
       </div>
-
     </section><!-- /Features Section -->
 
     <!-- Clients Section -->
     <section id="clients" class="clients section">
-
       <div class="container" data-aos="fade-up" data-aos-delay="100">
-
         <div class="swiper init-swiper">
           <script type="application/json" class="swiper-config">
             {
@@ -516,18 +527,14 @@
           </div>
           <div class="swiper-pagination"></div>
         </div>
-
       </div>
-
     </section>
     <!-- /Clients Section -->
 
     <!-- Faq Section -->
     <section class="faq-9 faq section light-background" id="faq">
-
       <div class="container">
         <div class="row">
-
           <div class="col-lg-5" data-aos="fade-up">
             <h2 class="faq-title">Punya pertanyaan? Lihat FAQ kami.</h2>
             <div class="faq-arrow d-none d-lg-block" data-aos="fade-up" data-aos-delay="200">
@@ -539,7 +546,6 @@
 
           <div class="col-lg-7" data-aos="fade-up" data-aos-delay="300">
             <div class="faq-container">
-
               <div class="faq-item faq-active">
                 <h3>Apa itu Akreditasi Perguruan Tinggi, Program Studi, dan Unit Kerja?</h3>
                 <div class="faq-content">
@@ -606,10 +612,8 @@
                 </div>
                 <i class="faq-toggle bi bi-chevron-right"></i>
               </div><!-- End Faq item-->
-
             </div>
           </div>
-
         </div>
       </div>
     </section><!-- /Faq Section -->
@@ -682,20 +686,14 @@
             <div class="rounded-4 overflow-hidden" style="width: 100%; height: 500px;"> <!-- Ubah tinggi menjadi lebih besar -->
             <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3989.0578062716795!2d104.04588167485429!3d1.1187204988705566!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31d98921856ddfab%3A0xf9d9fc65ca00c9d!2sPoliteknik%20Negeri%20Batam!5e0!3m2!1sid!2sid!4v1707785475625!5m2!1sid!2sid" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
           </div>
-
         </div>
-
       </div>
-
       <div class="container d-flex justify-content-center mt-5" data-aos="fade-up" data-aos-delay="400">
       </div>
-
     </section><!-- /Contact Section -->
-
   </main>
 
   <footer id="footer" class="footer">
-
     <div class="container footer-top">
       <div class="row gy-4">
         <div class="col-lg-4 col-md-6 footer-about">
@@ -757,7 +755,6 @@
     <div class="container copyright text-center mt-4">
       <p><strong class="px-1 sitename">Made By Pusat Penjaminan Mutu dan Pengembangan Pembelajaran</strong></p>
     </div>
-
   </footer>
 
   <!-- Scroll -->
@@ -772,5 +769,4 @@
   <script src="assets/js/main.js"></script>
 
 </body>
-
 </html>

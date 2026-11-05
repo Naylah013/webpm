@@ -174,7 +174,6 @@
           <div class="col-md-6">
             <ul class="feature-list">
               <li><i class="bi bi-check-circle-fill"></i> M.Fadli Kumangki, S.Tr.Kom</li>
-              <li><i class="bi bi-check-circle-fill"></i> Faudya Nilamsari Putri, A.Md.Kom</li>
             </ul>
           </div>
         </div>

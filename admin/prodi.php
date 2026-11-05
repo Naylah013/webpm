@@ -3,12 +3,71 @@ include "../koneksi.php";
 /** @var mysqli $koneksi */
 include 'header.php';
 
-$program_studi=query("SELECT * FROM program_studi");
+// ==========================================
+// 1. PROSES TAMBAH DATA
+// ==========================================
+if (isset($_POST["submit"])) {
+    $nama_jurusan = mysqli_real_escape_string($koneksi, $_POST["nama_jurusan"]);
+    $nama_program_studi = mysqli_real_escape_string($koneksi, $_POST["nama_program_studi"]);
+    $email_kps = mysqli_real_escape_string($koneksi, $_POST["email_kps"]);
+    
+    $sql = "INSERT INTO program_studi (nama_jurusan, nama_program_studi, email_kps) 
+            VALUES ('$nama_jurusan', '$nama_program_studi', '$email_kps')";
+    $result = mysqli_query($koneksi, $sql);
+    
+    if ($result) {
+        echo "<script>alert('Data telah ditambahkan'); window.location='prodi.php';</script>";
+    } else {
+        echo "<script>alert('Data gagal ditambahkan: " . mysqli_error($koneksi) . "'); window.location='prodi.php';</script>";
+    }
+}
+
+// ==========================================
+// 2. PROSES EDIT DATA
+// ==========================================
+if (isset($_POST["edit"])) {
+    $id_prodi = mysqli_real_escape_string($koneksi, $_POST["id_prodi"]);
+    $nama_jurusan = mysqli_real_escape_string($koneksi, $_POST["ubah_nama_jurusan"]);
+    $nama_program_studi = mysqli_real_escape_string($koneksi, $_POST["ubah_nama_program_studi"]);
+    $email_kps = mysqli_real_escape_string($koneksi, $_POST["ubah_email_kps"]);
+
+    $update = mysqli_query($koneksi, "UPDATE program_studi SET 
+        nama_jurusan = '$nama_jurusan',
+        nama_program_studi = '$nama_program_studi',
+        email_kps = '$email_kps'
+        WHERE id_prodi = '$id_prodi'");
+
+    if ($update) {
+        echo "<script>alert('Data Berhasil Di Edit'); window.location='prodi.php';</script>";
+    } else {
+        echo "<script>alert('Data Gagal Di Edit: " . mysqli_error($koneksi) . "'); window.location='prodi.php';</script>";
+    }
+}
+
+// ==========================================
+// 3. PROSES HAPUS DATA
+// ==========================================
+if (isset($_POST["delete"])) {
+    $id_prodi = mysqli_real_escape_string($koneksi, $_POST["id_prodi"]);
+    $delete = mysqli_query($koneksi, "DELETE FROM program_studi WHERE id_prodi='$id_prodi'");
+
+    if ($delete) {
+        echo "<script>alert('Data Berhasil Dihapus'); window.location='prodi.php';</script>";
+    } else {
+        echo "<script>alert('Data Gagal Dihapus: " . mysqli_error($koneksi) . "'); window.location='prodi.php';</script>";
+    }
+}
+
+// ==========================================
+// 4. AMBIL DATA & PAGINATION
+// ==========================================
+$program_studi = query("SELECT * FROM program_studi");
 
 // Pagination setup
 $limit = 10; 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $start = ($page > 1) ? ($page * $limit) - $limit : 0;
+
 // Pencarian
 $search = isset($_GET['nama_program_studi']) ? trim($_GET['nama_program_studi']) : '';
 if ($search !== '') {
@@ -16,11 +75,10 @@ if ($search !== '') {
         return stripos($item['nama_program_studi'], $search) !== false;
     });
 }
-// Query untuk mendapatkan data
+
 $totalData = count($program_studi);
 $totalPages = ceil($totalData / $limit);
 $program_studi = array_slice($program_studi, $start, $limit);
-
 ?>
 
 <head>
@@ -77,19 +135,21 @@ $program_studi = array_slice($program_studi, $start, $limit);
                     <th>No</th>
                     <th>Nama Jurusan</th>
                     <th>Nama Program Studi</th>
-                    <th>Email KPS</th> <!-- KOLOM BARU -->
+                    <th>Email KPS</th>
                     <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (!empty($program_studi)): ?>
-                    <?php $id=1; ?>
+                    <?php $id = $start + 1; // Perbaikan nomor urut saat pindah halaman ?>
                     <?php foreach ($program_studi as $row): ?>
                     <tr>
                         <td><?php echo $id; ?></td>
-                        <td><?php echo $row["nama_jurusan"]; ?></td>
-                        <td><?php echo $row["nama_program_studi"]; ?></td>
-                        <td><?php echo !empty($row["email_kps"]) ? $row["email_kps"] : '<span class="text-muted fst-italic">Belum diatur</span>'; ?></td> <!-- ISI KOLOM BARU -->
+                        <td><?php echo htmlspecialchars($row["nama_jurusan"]); ?></td>
+                        <td><?php echo htmlspecialchars($row["nama_program_studi"]); ?></td>
+                        <td>
+                            <?php echo !empty($row["email_kps"]) ? htmlspecialchars($row["email_kps"]) : '<span class="text-muted fst-italic">Belum diatur</span>'; ?>
+                        </td>
                         <td>
                             <button class="btn btn-icon btn-warning" data-bs-toggle="modal" data-bs-target="#modalEdit<?php echo $row['id_prodi']; ?>"><i class="fas fa-edit"></i></button>
                             <button class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#modalDelete<?php echo $row['id_prodi']; ?>"><i class="fas fa-trash-alt"></i></button>                                    
@@ -132,25 +192,6 @@ $program_studi = array_slice($program_studi, $start, $limit);
 <!-- End Main Content -->
 
 <!-- Modal Tambah Data -->
-<?php
-if(isset($_POST["submit"])){
-    $nama_jurusan=$_POST["nama_jurusan"];
-    $nama_program_studi=$_POST["nama_program_studi"];
-    $email_kps = mysqli_real_escape_string($koneksi, $_POST["email_kps"]); // TAMBAHAN
-    
-    $sql="INSERT INTO program_studi (nama_jurusan, nama_program_studi, email_kps) VALUES('$_POST[nama_jurusan]','$_POST[nama_program_studi]', '$email_kps')"; // TAMBAHAN
-    $result=mysqli_query($koneksi,$sql);
-    if($result){
-    echo "<script>alert('Data telah ditambahkan');
-        window.location='prodi.php'</script>";
-    }else{
-    echo "<script>alert('Data gagal ditambahkan!');
-        window.location='prodi.php'</script>";
-    }
-
-}
-?>
-
 <div class="modal fade" id="modalTambah" tabindex="-1" aria-labelledby="modalTambahLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -168,10 +209,9 @@ if(isset($_POST["submit"])){
                         <label for="nama_program_studi" class="form-label">Nama Program Studi</label>
                         <input type="text" class="form-control" name="nama_program_studi" required>
                     </div>
-                    <!-- TAMBAHAN INPUT EMAIL -->
                     <div class="mb-3">
                         <label for="email_kps" class="form-label">Email KPS / Kaprodi</label>
-                        <input type="email" class="form-control" name="email_kps" placeholder="contoh@polibatam.ac.id">
+                        <input type="email" class="form-control" name="email_kps" placeholder="xxxx@polibatam.ac.id">
                     </div>
             </div>
             <div class="modal-footer">
@@ -183,31 +223,8 @@ if(isset($_POST["submit"])){
 </div>
 
 <?php foreach ($program_studi as $row): ?>
-
 <!-- Modal Edit Data -->
-<?php
-    $edit = mysqli_query($koneksi,"SELECT * FROM program_studi WHERE program_studi.id_prodi=$row[id_prodi]");
-    $rowedit = mysqli_fetch_array($edit);
-
-    if(isset($_POST["edit"])){
-        $email_kps_update = mysqli_real_escape_string($koneksi, $_POST["ubah_email_kps"]); // TAMBAHAN
-        $update = mysqli_query($koneksi,"UPDATE program_studi SET 
-        nama_jurusan='$_POST[ubah_nama_jurusan]',
-        nama_program_studi='$_POST[ubah_nama_program_studi]',
-        email_kps='$email_kps_update'
-        WHERE id_prodi='$_POST[id_prodi]'");
-
-        if($update){
-            echo "<script>alert('Data Berhasil Di Edit');
-                window.location='prodi.php'</script>";
-        }else{
-            echo "<script>alert('Data Gagal Di Edit');
-                window.location='prodi.php'</script>";
-        }
-    }
-?>
-
-<div class="modal fade" id="modalEdit<?php echo $rowedit["id_prodi"]; ?>" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
+<div class="modal fade" id="modalEdit<?php echo $row['id_prodi']; ?>" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -215,20 +232,19 @@ if(isset($_POST["submit"])){
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form class="" method="post">
-            <input type="hidden" class="form-control" name="id_prodi" value="<?php echo $rowedit['id_prodi']; ?>">
+            <input type="hidden" class="form-control" name="id_prodi" value="<?php echo $row['id_prodi']; ?>">
             <div class="modal-body">
                     <div class="mb-3">
                         <label for="ubah_nama_jurusan" class="form-label">Nama Jurusan</label>
-                        <input type="text" class="form-control" name="ubah_nama_jurusan" value="<?php echo $rowedit['nama_jurusan']; ?>" required>
+                        <input type="text" class="form-control" name="ubah_nama_jurusan" value="<?php echo htmlspecialchars($row['nama_jurusan']); ?>" required>
                     </div>
                     <div class="mb-3">
                         <label for="ubah_nama_program_studi" class="form-label">Nama Program Studi</label>
-                        <input type="text" class="form-control" name="ubah_nama_program_studi" value="<?php echo $rowedit['nama_program_studi']; ?>" required>
+                        <input type="text" class="form-control" name="ubah_nama_program_studi" value="<?php echo htmlspecialchars($row['nama_program_studi']); ?>" required>
                     </div>
-                    <!-- TAMBAHAN INPUT EMAIL -->
                     <div class="mb-3">
                         <label for="ubah_email_kps" class="form-label">Email KPS / Kaprodi</label>
-                        <input type="email" class="form-control" name="ubah_email_kps" value="<?php echo isset($rowedit['email_kps']) ? $rowedit['email_kps'] : ''; ?>" placeholder="contoh@polibatam.ac.id">
+                        <input type="email" class="form-control" name="ubah_email_kps" value="<?php echo isset($row['email_kps']) ? htmlspecialchars($row['email_kps']) : ''; ?>" placeholder="xxxx@polibatam.ac.id">
                     </div>
             </div>
             <div class="modal-footer">
@@ -240,19 +256,6 @@ if(isset($_POST["submit"])){
 </div>
 
 <!-- Modal Delete -->
-<?php
-if (isset($_POST["delete"])) {
-    $id_prodi = mysqli_real_escape_string($koneksi, $_POST["id_prodi"]);
-    $delete = mysqli_query($koneksi, "DELETE FROM program_studi WHERE id_prodi='$id_prodi'");
-
-    if ($delete) {
-        echo "<script>alert('Data Berhasil Dihapus'); window.location='prodi.php';</script>";
-    } else {
-        echo "<script>alert('Data Gagal Dihapus: " . mysqli_error($koneksi) . "'); window.location='prodi.php';</script>";
-    }
-}            
-?>
-
 <div class="modal fade" id="modalDelete<?php echo $row['id_prodi']; ?>" tabindex="-1" aria-labelledby="modalDeleteLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -263,7 +266,7 @@ if (isset($_POST["delete"])) {
             <form method="post">
                 <input type="hidden" name="id_prodi" value="<?php echo $row['id_prodi']; ?>">
                 <div class="modal-body">
-                    <p>Apakah Anda yakin ingin menghapus data <b><?php echo $row['nama_program_studi']; ?></b>?</p>
+                    <p>Apakah Anda yakin ingin menghapus data <b><?php echo htmlspecialchars($row['nama_program_studi']); ?></b>?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" name="delete" class="btn btn-danger">Hapus</button>

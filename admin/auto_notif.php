@@ -90,7 +90,7 @@ function proses_notifikasi($koneksi, $tanggal_berakhir, $id_target, $jenis_targe
 }
 
 // ==========================================
-// 1. CEK PROGRAM STUDI
+// PROGRAM STUDI 
 // ==========================================
 $query_prodi = mysqli_query($koneksi, "
     SELECT a.tanggal_berakhir, ps.id_prodi, ps.nama_program_studi, ps.email_kps
@@ -106,26 +106,6 @@ $query_prodi = mysqli_query($koneksi, "
 if ($query_prodi) {
     while ($row = mysqli_fetch_assoc($query_prodi)) {
         proses_notifikasi($koneksi, $row['tanggal_berakhir'], $row['id_prodi'], 'program_studi', $row['email_kps'], 'Ketua Program Studi', $row['nama_program_studi']);
-    }
-}
-
-// ==========================================
-// 2. CEK UNIT KERJA
-// ==========================================
-$query_unit = mysqli_query($koneksi, "
-    SELECT a.tanggal_berakhir, u.id_unit, u.nama_unit_kerja, u.email_unit
-    FROM akreditasi a
-    JOIN unit u ON a.id_unit = u.id_unit
-    INNER JOIN (
-        SELECT id_unit, MAX(tanggal_berakhir) as max_date
-        FROM akreditasi WHERE akreditasi = 'unit kerja' GROUP BY id_unit
-    ) latest ON a.id_unit = latest.id_unit AND a.tanggal_berakhir = latest.max_date
-    WHERE a.akreditasi = 'unit kerja'
-");
-
-if ($query_unit) {
-    while ($row = mysqli_fetch_assoc($query_unit)) {
-        proses_notifikasi($koneksi, $row['tanggal_berakhir'], $row['id_unit'], 'unit', $row['email_unit'], 'Kepala Unit Kerja', $row['nama_unit_kerja']);
     }
 }
 ?>

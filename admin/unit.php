@@ -8,9 +8,8 @@ include 'header.php';
 // ==========================================
 if (isset($_POST["submit"])) {
     $nama_unit_kerja = mysqli_real_escape_string($koneksi, $_POST["nama_unit_kerja"]);
-    $email_unit = mysqli_real_escape_string($koneksi, $_POST["email_unit"]); // FITUR BARU
     
-    $sql = "INSERT INTO unit (nama_unit_kerja, email_unit) VALUES('$nama_unit_kerja', '$email_unit')";
+    $sql = "INSERT INTO unit (nama_unit_kerja) VALUES('$nama_unit_kerja')";
     $result = mysqli_query($koneksi, $sql);
     
     if ($result) {
@@ -26,11 +25,9 @@ if (isset($_POST["submit"])) {
 if (isset($_POST["edit"])) {
     $id_unit = mysqli_real_escape_string($koneksi, $_POST["id_unit"]);
     $nama_unit_kerja = mysqli_real_escape_string($koneksi, $_POST["ubah_nama_unit_kerja"]);
-    $email_unit = mysqli_real_escape_string($koneksi, $_POST["ubah_email_unit"]); // FITUR BARU
 
     $update = mysqli_query($koneksi, "UPDATE unit SET 
-        nama_unit_kerja = '$nama_unit_kerja',
-        email_unit = '$email_unit'
+        nama_unit_kerja = '$nama_unit_kerja'
         WHERE id_unit = '$id_unit'");
 
     if ($update) {
@@ -130,7 +127,6 @@ $unit = array_slice($unit, $start, $limit);
                     <tr>
                     <th>No</th>
                     <th>Nama Unit Kerja</th>
-                    <th>Email Unit</th> <!-- KOLOM BARU -->
                     <th>Aksi</th>
                     </tr>
                 </thead>
@@ -141,7 +137,6 @@ $unit = array_slice($unit, $start, $limit);
                     <tr>
                         <td><?php echo $id; ?></td>
                         <td><?php echo htmlspecialchars($row["nama_unit_kerja"]); ?></td>
-                        <td><?php echo !empty($row["email_unit"]) ? htmlspecialchars($row["email_unit"]) : '<span class="text-muted fst-italic">Belum diatur</span>'; ?></td> <!-- ISI KOLOM BARU -->
                         <td>
                             <button class="btn btn-icon btn-warning" data-bs-toggle="modal" data-bs-target="#modalEdit<?php echo $row['id_unit']; ?>"><i class="fas fa-edit"></i></button>
                             <button class="btn btn-icon btn-danger" data-bs-toggle="modal" data-bs-target="#modalDelete<?php echo $row['id_unit']; ?>"><i class="fas fa-trash-alt"></i></button>                                    
@@ -151,7 +146,7 @@ $unit = array_slice($unit, $start, $limit);
                     <?php endforeach; ?>
                     <?php else: ?>
                     <tr>
-                        <td colspan="4">Tidak ada data yang tersedia.</td>
+                        <td colspan="3">Tidak ada data yang tersedia.</td>
                     </tr>
                     <?php endif; ?>
                 </tbody>
@@ -197,11 +192,6 @@ $unit = array_slice($unit, $start, $limit);
                         <label for="nama_unit_kerja" class="form-label">Nama Unit Kerja</label>
                         <input type="text" class="form-control" name="nama_unit_kerja" required>
                     </div>
-                    <!-- TAMBAHAN INPUT EMAIL -->
-                    <div class="mb-3">
-                        <label for="email_unit" class="form-label">Email Unit / Penanggung Jawab</label>
-                        <input type="email" class="form-control" name="email_unit" placeholder="xxxx@polibatam.ac.id">
-                    </div>
             </div>
             <div class="modal-footer">
                 <button type="submit" name="submit" class="btn btn-primary">Simpan</button>
@@ -226,11 +216,6 @@ $unit = array_slice($unit, $start, $limit);
                     <div class="mb-3">
                         <label for="ubah_nama_unit_kerja" class="form-label">Nama Unit Kerja</label>
                         <input type="text" class="form-control" name="ubah_nama_unit_kerja" id="ubah_nama_unit_kerja" value="<?php echo htmlspecialchars($row['nama_unit_kerja']); ?>" required>
-                    </div>
-                    <!-- TAMBAHAN INPUT EMAIL -->
-                    <div class="mb-3">
-                        <label for="ubah_email_unit" class="form-label">Email Unit / Penanggung Jawab</label>
-                        <input type="email" class="form-control" name="ubah_email_unit" value="<?php echo isset($row['email_unit']) ? htmlspecialchars($row['email_unit']) : ''; ?>" placeholder="xxxx@polibatam.ac.id">
                     </div>
                 </div>
             <div class="modal-footer">

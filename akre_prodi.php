@@ -185,7 +185,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
   </header>
 
   <main class="main">
-    <div class="page-title light-background" style="margin-top: 80px;">
+    <div class="page-title light-background" style="margin-top: 65px; padding-top: 80px; padding-bottom: 5px;">
       <div class="container">
         <div class="container section-title" data-aos="fade-up">
           <h2>Akreditasi Program Studi</h2>

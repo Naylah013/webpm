@@ -221,6 +221,7 @@ if (mysqli_num_rows($result_riwayat) > 0) {
             <thead>
               <tr>
                 <th width="5%" class="text-center">No</th>
+                <th class="text-center">Jenis Akreditasi</th>
                 <th class="text-center">Tanggal Mulai</th>
                 <th class="text-center">Tanggal Berakhir</th>
                 <th>Peringkat</th>
@@ -236,6 +237,7 @@ if (mysqli_num_rows($result_riwayat) > 0) {
               ?>
                   <tr>
                     <td class="text-center fw-bold text-muted"><?= $no++ ?></td>
+                    <td class="text-center"><span class="badge-custom"><?= htmlspecialchars($riwayat['jenis_akreditasi'] ?? '-') ?></span></td>
                     <td class="text-center text-dark fw-medium"><?= date('d M Y', strtotime($riwayat['tanggal_mulai'])) ?></td>
                     <td class="text-center text-dark fw-medium"><?= date('d M Y', strtotime($riwayat['tanggal_berakhir'])) ?></td>
                     <td><span class="fw-medium"><?= htmlspecialchars($riwayat['peringkat']) ?></span></td>
@@ -253,7 +255,7 @@ if (mysqli_num_rows($result_riwayat) > 0) {
                 <?php endwhile; ?>
               <?php else: ?>
                 <tr>
-                  <td colspan="6" class="text-center py-5">
+                  <td colspan="7" class="text-center py-5">
                     <div class="text-muted mb-2"><i class="bi bi-folder-x fs-1"></i></div>
                     <h6 class="fw-bold text-dark">Belum Ada Riwayat</h6>
                     <p class="small text-muted mb-0">Belum ada riwayat akreditasi untuk program studi ini.</p>

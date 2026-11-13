@@ -310,7 +310,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                   </div>
                   <div class="col">
                     <div class="stat-card card-warning" onclick="setFilter('nasional', 'expire', '1')">
-                      <div class="stat-label">Expire < 1 Thn</div>
+                      <div class="stat-label">Masa Habis Berlaku</div>
                       <div class="stat-number"><?= $total_expire_nas ?></div>
                       <div class="stat-desc">Reminder KPS</div>
                     </div>
@@ -372,7 +372,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                             <td class="text-center">
                                 <?= date('d M Y', strtotime($prodi['tanggal_berakhir'])) ?>
                                 <?php if($prodi['is_expire']): ?>
-                                    <br><span class="badge bg-danger" style="font-size: 10px;">Akan Expire</span>
+                                    <br><span class="badge bg-danger" style="font-size: 10px;">Akan Berakhir</span>
                                 <?php endif; ?>
                             </td>
                             <td class="text-center">
@@ -445,7 +445,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                   </div>
                   <div class="col">
                     <div class="stat-card card-warning" onclick="setFilter('internasional', 'expire', '1')">
-                      <div class="stat-label">Expire < 1 Thn</div>
+                      <div class="stat-label">Masa Habis Berlaku</div>
                       <div class="stat-number"><?= $total_expire_int ?></div>
                       <div class="stat-desc">Reminder KPS</div>
                     </div>
@@ -507,7 +507,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                             <td class="text-center">
                                 <?= date('d M Y', strtotime($prodi_int['tanggal_berakhir'])) ?>
                                 <?php if($prodi_int['is_expire']): ?>
-                                    <br><span class="badge bg-danger" style="font-size: 10px;">Akan Expire</span>
+                                    <br><span class="badge bg-danger" style="font-size: 10px;">Akan Berakhir</span>
                                 <?php endif; ?>
                             </td>
                             <td class="text-center">
@@ -580,7 +580,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                   </div>
                   <div class="col">
                     <div class="stat-card card-warning" onclick="setFilter('tersertifikasi', 'expire', '1')">
-                      <div class="stat-label">Expire < 1 Thn</div>
+                      <div class="stat-label">Masa Habis Berlaku</div>
                       <div class="stat-number"><?= $total_expire_cert ?></div>
                       <div class="stat-desc">Reminder KPS</div>
                     </div>
@@ -642,7 +642,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                             <td class="text-center">
                                 <?= date('d M Y', strtotime($prodi_cert['tanggal_berakhir'])) ?>
                                 <?php if($prodi_cert['is_expire']): ?>
-                                    <br><span class="badge bg-danger" style="font-size: 10px;">Akan Expire</span>
+                                    <br><span class="badge bg-danger" style="font-size: 10px;">Akan Berakhir</span>
                                 <?php endif; ?>
                             </td>
                             <td class="text-center">

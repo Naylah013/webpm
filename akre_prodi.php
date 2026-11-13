@@ -8,46 +8,38 @@ if (isset($_GET['nama_jurusan']) && $_GET['nama_jurusan'] != "") {
     $filterJurusan = "AND ps.nama_jurusan = '$selectedJurusan'";
 }
 
-$query = "
+// =====================================================================
+// 1. QUERY UNTUK MENAMPILKAN DATA TABEL (Muncul 2x jika punya 2 akreditasi)
+// =====================================================================
+$query_tabel = "
     SELECT a1.*, ps.nama_program_studi, ps.nama_jurusan, ja.jenis_akreditasi, l.nama_lembaga
     FROM akreditasi a1
-    INNER JOIN (
-        SELECT id_prodi, MAX(tanggal_berakhir) AS max_tanggal
-        FROM akreditasi
-        WHERE akreditasi = 'program studi'
-        GROUP BY id_prodi
-    ) a2 ON a1.id_prodi = a2.id_prodi AND a1.tanggal_berakhir = a2.max_tanggal
     INNER JOIN program_studi ps ON a1.id_prodi = ps.id_prodi
     LEFT JOIN jenis_akreditasi ja ON a1.id_jenis = ja.id_jenis
     LEFT JOIN lembaga l ON a1.id_lembaga = l.id_lembaga
     WHERE a1.akreditasi = 'program studi' $filterJurusan
     ORDER BY ps.nama_jurusan ASC, a1.tanggal_berakhir DESC
 ";
-$result = mysqli_query($koneksi, $query);
+$result_tabel = mysqli_query($koneksi, $query_tabel);
 
-// Penampung data
 $data_nasional = [];
 $data_internasional = [];
 
-// Statistik Nasional
 $total_semua_nas = 0; $total_unggul_nas = 0; $total_baik_sekali_nas = 0;
 $total_baik_nas = 0; $total_expire_nas = 0; $total_terakreditasi_nas = 0;
 
-// Statistik Internasional
 $total_semua_int = 0; $total_unggul_int = 0; $total_baik_sekali_int = 0;
 $total_baik_int = 0; $total_expire_int = 0; $total_terakreditasi_int = 0;
 
-while ($row = mysqli_fetch_assoc($result)) {
+while ($row = mysqli_fetch_assoc($result_tabel)) {
     $tipe = isset($row['jenis_akreditasi']) ? $row['jenis_akreditasi'] : 'Nasional';
 
-    // Hitung expire
     $tgl_berakhir_obj = new DateTime($row['tanggal_berakhir']);
     $tgl_sekarang_obj = new DateTime($hari_ini);
     $selisih = $tgl_sekarang_obj->diff($tgl_berakhir_obj)->days;
     $is_expire = ($tgl_berakhir_obj >= $tgl_sekarang_obj && $selisih <= 365);
     $row['is_expire'] = $is_expire;
 
-    // Hitung kategori predikat
     $predikat_lower = strtolower($row['peringkat']);
     $kategori = 'terakreditasi';
     if (strpos($predikat_lower, 'unggul') !== false) $kategori = 'unggul';
@@ -74,24 +66,47 @@ while ($row = mysqli_fetch_assoc($result)) {
     }
 }
 
-// Persentase Nasional
+// Persentase
 $pct_unggul_nas = ($total_semua_nas > 0) ? round(($total_unggul_nas / $total_semua_nas) * 100) : 0;
 $pct_baik_sekali_nas = ($total_semua_nas > 0) ? round(($total_baik_sekali_nas / $total_semua_nas) * 100) : 0;
 $pct_baik_nas = ($total_semua_nas > 0) ? round(($total_baik_nas / $total_semua_nas) * 100) : 0;
 $pct_terakreditasi_nas = ($total_semua_nas > 0) ? round(($total_terakreditasi_nas / $total_semua_nas) * 100) : 0;
 
-// Persentase Internasional
 $pct_unggul_int = ($total_semua_int > 0) ? round(($total_unggul_int / $total_semua_int) * 100) : 0;
 $pct_baik_sekali_int = ($total_semua_int > 0) ? round(($total_baik_sekali_int / $total_semua_int) * 100) : 0;
 $pct_baik_int = ($total_semua_int > 0) ? round(($total_baik_int / $total_semua_int) * 100) : 0;
 $pct_terakreditasi_int = ($total_semua_int > 0) ? round(($total_terakreditasi_int / $total_semua_int) * 100) : 0;
 
-// Daftar jurusan dinamis (untuk pill filter)
+// Daftar jurusan
 $listJurusan = [];
 $qJur = mysqli_query($koneksi, "SELECT DISTINCT nama_jurusan FROM program_studi ORDER BY nama_jurusan ASC");
 while ($j = mysqli_fetch_assoc($qJur)) {
     $listJurusan[] = $j['nama_jurusan'];
 }
+
+// =====================================================================
+// 2. QUERY UNTUK STATISTIK DONAT (Menghitung Prodi Unik, bukan baris ganda)
+// =====================================================================
+
+// Hitung total prodi unik yang punya akreditasi nasional
+$q_uniq_nas = mysqli_query($koneksi, "
+    SELECT COUNT(DISTINCT a1.id_prodi) AS total 
+    FROM akreditasi a1 
+    LEFT JOIN jenis_akreditasi ja ON a1.id_jenis = ja.id_jenis
+    WHERE a1.akreditasi = 'program studi' 
+    AND (LOWER(ja.jenis_akreditasi) != 'internasional' OR ja.jenis_akreditasi IS NULL)
+");
+$uniq_nas = mysqli_fetch_assoc($q_uniq_nas)['total'] ?? 0;
+
+// Hitung total prodi unik yang punya akreditasi internasional
+$q_uniq_int = mysqli_query($koneksi, "
+    SELECT COUNT(DISTINCT a1.id_prodi) AS total 
+    FROM akreditasi a1 
+    LEFT JOIN jenis_akreditasi ja ON a1.id_jenis = ja.id_jenis
+    WHERE a1.akreditasi = 'program studi' 
+    AND LOWER(ja.jenis_akreditasi) = 'internasional'
+");
+$uniq_int = mysqli_fetch_assoc($q_uniq_int)['total'] ?? 0;
 ?>
 
 <!DOCTYPE html>
@@ -161,10 +176,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                 <li><a href="layanan_pedadogik.php">Layanan Pedadogik</a></li>
             </ul>
           </li>
-          
-          <!-- NAVBAR AKREDITASI SUDAH JADI 1 KLIK -->
           <li><a href="akreditasi.php" class="active">Akreditasi</a></li>
-
           <li class="dropdown">
             <a href=""><span>Program Fasilitasi P4M</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
@@ -193,9 +205,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
     <section id="service-details" class="service-details section">
       <div class="container" data-aos="fade-up">
 
-        <!-- ========================================== -->
-        <!-- TOMBOL BACK YANG KAMU MINTA -->
-        <!-- ========================================== -->
         <div class="mb-4" data-aos="fade-up">
             <a href="akreditasi.php" class="btn btn-outline-primary rounded-pill px-4">
                 <i class="bi bi-arrow-left me-1"></i> Kembali ke Menu Akreditasi
@@ -221,7 +230,8 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                 <div class="position-relative mx-auto" style="width: 150px; height: 150px;">
                   <canvas id="donutChartNasional"></canvas>
                   <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events: none;">
-                    <h3 class="mb-0 fw-bold" style="color: #1e2b4c;"><?= $total_semua_nas ?></h3>
+                    <!-- MENGGUNAKAN $uniq_nas UNTUK TOTAL PRODI UNIK -->
+                    <h3 class="mb-0 fw-bold" style="color: #1e2b4c;"><?= $uniq_nas ?></h3>
                     <small class="text-muted">prodi</small>
                   </div>
                 </div>
@@ -288,7 +298,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
             <div class="modern-card">
               <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
-                  <h6 class="fw-bold mb-1" id="judul-tabel-nas">Daftar Prodi (Nasional) - Total: <?= $total_semua_nas ?> Prodi</h6>
+                  <h6 class="fw-bold mb-1" id="judul-tabel-nas">Daftar Prodi (Nasional) - Total: <?= $total_semua_nas ?> Data</h6>
                   <p class="text-muted small mb-0">Menampilkan daftar program studi berdasarkan filter terpilih</p>
                 </div>
                 <input type="text" id="search-input-nas" class="form-control form-control-sm" placeholder="Cari nama prodi..." style="width: 250px; border-radius: 20px;" onkeyup="searchTable('nasional')">
@@ -352,7 +362,8 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                 <div class="position-relative mx-auto" style="width: 150px; height: 150px;">
                   <canvas id="donutChartInternasional"></canvas>
                   <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events: none;">
-                    <h3 class="mb-0 fw-bold" style="color: #1e2b4c;"><?= $total_semua_int ?></h3>
+                    <!-- MENGGUNAKAN $uniq_int UNTUK TOTAL PRODI UNIK -->
+                    <h3 class="mb-0 fw-bold" style="color: #1e2b4c;"><?= $uniq_int ?></h3>
                     <small class="text-muted">prodi</small>
                   </div>
                 </div>
@@ -419,7 +430,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
             <div class="modern-card">
               <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
-                  <h6 class="fw-bold mb-1" id="judul-tabel-int">Daftar Prodi (Internasional) - Total: <?= $total_semua_int ?> Prodi</h6>
+                  <h6 class="fw-bold mb-1" id="judul-tabel-int">Daftar Prodi (Internasional) - Total: <?= $total_semua_int ?> Data</h6>
                   <p class="text-muted small mb-0">Menampilkan daftar program studi internasional</p>
                 </div>
                 <input type="text" id="search-input-int" class="form-control form-control-sm" placeholder="Cari nama prodi..." style="width: 250px; border-radius: 20px;" onkeyup="searchTable('internasional')">
@@ -556,16 +567,12 @@ while ($j = mysqli_fetch_assoc($qJur)) {
     document.addEventListener("DOMContentLoaded", function() {
       AOS.init({ duration: 600, once: true, easing: 'ease-out-cubic' });
 
-      // ======================================================
-      // UPDATE: DONUT CHART KEMBALI MUNCUL
-      // ======================================================
       const softColors = ['#4A90E2', '#50E3C2', '#FFE082', '#F48FB1']; 
       const labelsKategori = ['Unggul', 'Baik Sekali', 'Baik', 'Terakreditasi'];
 
-      // Panggil ID yang benar: 'donutChartNasional'
       const ctxNas = document.getElementById('donutChartNasional').getContext('2d');
       new Chart(ctxNas, {
-        type: 'doughnut', // Kembalikan ke doughnut
+        type: 'doughnut', 
         data: {
           labels: labelsKategori,
           datasets: [{
@@ -578,7 +585,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
         options: { 
           responsive: true, 
           maintainAspectRatio: false, 
-          cutout: '75%', // Lubang di tengah donat
+          cutout: '75%', 
           plugins: { 
             legend: { display: false },
             tooltip: {
@@ -599,10 +606,9 @@ while ($j = mysqli_fetch_assoc($qJur)) {
         }
       });
 
-      // Panggil ID yang benar: 'donutChartInternasional'
       const ctxInt = document.getElementById('donutChartInternasional').getContext('2d');
       new Chart(ctxInt, {
-        type: 'doughnut', // Kembalikan ke doughnut
+        type: 'doughnut', 
         data: {
           labels: labelsKategori,
           datasets: [{
@@ -615,7 +621,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
         options: { 
           responsive: true, 
           maintainAspectRatio: false,
-          cutout: '75%', // Lubang di tengah donat
+          cutout: '75%', 
           plugins: { 
             legend: { display: false },
             tooltip: {
@@ -691,9 +697,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
       applyFilter(tab);
     };
 
-    // ======================================================
-    // EXPORT EXCEL DENGAN FORMAT PROFESIONAL & SIAP CETAK
-    // ======================================================
     window.exportExcel = function(tab) {
       const tableId = tab === 'nasional' ? 'tabelNasional' : 'tabelInternasional';
       const title = tab === 'nasional' ? 'AKREDITASI PROGRAM STUDI NASIONAL' : 'AKREDITASI PROGRAM STUDI INTERNASIONAL';
@@ -702,90 +705,69 @@ while ($j = mysqli_fetch_assoc($qJur)) {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Data Akreditasi', {
         pageSetup: {
-          paperSize: 9, // A4
-          orientation: 'landscape',
-          fitToPage: true,
-          fitToWidth: 1,
-          fitToHeight: 0,
-          margins: {
-            left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3
-          },
+          paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, fitToHeight: 0,
+          margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 },
           printTitlesRow: '5:5' 
         }
       });
 
-      // 1. JUDUL Akreditaisi
-      worksheet.mergeCells('A1:G1'); // Ubah dari H1 ke G1 karena kolom berkurang
+      worksheet.mergeCells('A1:G1'); 
       const titleCell = worksheet.getCell('A1');
       titleCell.value = title;
       titleCell.font = { name: 'Arial', size: 16, bold: true, color: { argb: 'FF17365D' } };
       titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
       worksheet.getRow(1).height = 35;
 
-      worksheet.mergeCells('A2:G2'); // Ubah dari H2 ke G2
+      worksheet.mergeCells('A2:G2'); 
       const subTitleCell = worksheet.getCell('A2');
       subTitleCell.value = 'Politeknik Negeri Batam - Pusat Penjaminan Mutu dan Pengembangan Pembelajaran';
       subTitleCell.font = { name: 'Arial', size: 10, italic: true, color: { argb: 'FF555555' } };
       subTitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
       worksheet.getRow(2).height = 20;
 
-      // Garis pemisah judul
-      worksheet.mergeCells('A3:G3'); // Ubah dari H3 ke G3
+      worksheet.mergeCells('A3:G3'); 
       const lineCell = worksheet.getCell('A3');
       lineCell.value = '';
       lineCell.border = { bottom: { style: 'medium', color: { argb: 'FF17365D' } } };
       worksheet.getRow(3).height = 15;
 
-      // 2. HEADER TABEL (Baris 5, jarak 1 baris)
       const headerRow = worksheet.getRow(5);
-      headerRow.values = ['No', 'Jurusan', 'Program Studi', 'Predikat', 'Lembaga', 'Tgl Mulai', 'Tgl Berakhir']; // Status dihapus
+      headerRow.values = ['No', 'Jurusan', 'Program Studi', 'Predikat', 'Lembaga', 'Tgl Mulai', 'Tgl Berakhir'];
       
-      // Set lebar kolom
       worksheet.columns = [
-        { key: 'no', width: 6 },
-        { key: 'jurusan', width: 25 },
-        { key: 'prodi', width: 65 }, 
-        { key: 'predikat', width: 18 },
-        { key: 'lembaga', width: 35 }, 
-        { key: 'mulai', width: 15 },
-        { key: 'berakhir', width: 15 }
+        { key: 'no', width: 6 }, { key: 'jurusan', width: 25 }, { key: 'prodi', width: 65 }, 
+        { key: 'predikat', width: 18 }, { key: 'lembaga', width: 35 }, { key: 'mulai', width: 15 }, { key: 'berakhir', width: 15 }
       ];
 
-      // Styling Header
       headerRow.eachCell((cell) => {
         cell.font = { name: 'Arial', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF17365D' } }; // Deep Navy
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF17365D' } };
         cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
         cell.border = {
-          top: { style: 'thin', color: { argb: 'FFD6DCE5' } },
-          left: { style: 'thin', color: { argb: 'FFD6DCE5' } },
-          bottom: { style: 'thin', color: { argb: 'FFD6DCE5' } },
-          right: { style: 'thin', color: { argb: 'FFD6DCE5' } }
+          top: { style: 'thin', color: { argb: 'FFD6DCE5' } }, left: { style: 'thin', color: { argb: 'FFD6DCE5' } },
+          bottom: { style: 'thin', color: { argb: 'FFD6DCE5' } }, right: { style: 'thin', color: { argb: 'FFD6DCE5' } }
         };
       });
       headerRow.height = 35;
 
-      // 3. ISI TABEL & DATA
       const table = document.getElementById(tableId);
       const rows = table.querySelectorAll('tbody tr');
       let currentRowIndex = 6; 
       let rowCounter = 1;
 
-      // WARNA JURUSAN (LEBIH SOFT)
       function getJurusanColor(jurusan) {
         if (!jurusan) return 'FFFFFFFF';
         const j = jurusan.toLowerCase();
-        if (j.includes('manajemen')) return 'FFF9F5FF'; // Soft Lavender
-        if (j.includes('informatika')) return 'FFF0F9F5'; // Soft Sage
-        if (j.includes('elektro')) return 'FFF0F5FC'; // Soft Blue
-        if (j.includes('mesin')) return 'FFFDF2F2'; // Soft Pink
+        if (j.includes('manajemen')) return 'FFF9F5FF';
+        if (j.includes('informatika')) return 'FFF0F9F5';
+        if (j.includes('elektro')) return 'FFF0F5FC';
+        if (j.includes('mesin')) return 'FFFDF2F2';
         return 'FFFFFFFF';
       }
 
       rows.forEach(function(row) {
         if (row.style.display !== 'none' && !row.querySelector('td[colspan]')) {
           const cols = row.querySelectorAll('td');
-          
           const jurusan = cols[1].querySelector('small') ? cols[1].querySelector('small').innerText.trim() : '';
           const prodi = cols[1].querySelector('b') ? cols[1].querySelector('b').innerText.trim() : '';
           const predikat = cols[2].innerText.trim();
@@ -793,30 +775,21 @@ while ($j = mysqli_fetch_assoc($qJur)) {
           const mulai = cols[4].innerText.trim();
           const berakhir = cols[5].innerText.trim();
           
-          // Index status dihapus, karena di baris html sudah tidak ada
-          
           const dataRow = worksheet.getRow(currentRowIndex);
-          dataRow.values = [rowCounter++, jurusan, prodi, predikat, lembaga, mulai, berakhir]; // Status dihapus
+          dataRow.values = [rowCounter++, jurusan, prodi, predikat, lembaga, mulai, berakhir];
 
           const jurusanBgColor = getJurusanColor(jurusan);
 
           dataRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
             cell.font = { name: 'Arial', size: 11 };
-            cell.alignment = { 
-              vertical: 'middle', 
-              horizontal: (colNumber === 3 || colNumber === 2 || colNumber === 5) ? 'left' : 'center',
-              wrapText: true 
-            };
+            cell.alignment = { vertical: 'middle', horizontal: (colNumber === 3 || colNumber === 2 || colNumber === 5) ? 'left' : 'center', wrapText: true };
             cell.border = {
-              top: { style: 'thin', color: { argb: 'FFD6DCE5' } },
-              left: { style: 'thin', color: { argb: 'FFD6DCE5' } },
-              bottom: { style: 'thin', color: { argb: 'FFD6DCE5' } },
-              right: { style: 'thin', color: { argb: 'FFD6DCE5' } }
+              top: { style: 'thin', color: { argb: 'FFD6DCE5' } }, left: { style: 'thin', color: { argb: 'FFD6DCE5' } },
+              bottom: { style: 'thin', color: { argb: 'FFD6DCE5' } }, right: { style: 'thin', color: { argb: 'FFD6DCE5' } }
             };
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: jurusanBgColor } };
           });
           
-          // TINGGI BARIS OTOMATIS
           const linesProdi = Math.ceil(prodi.length / 55); 
           const linesLembaga = Math.ceil(lembaga.length / 30); 
           const maxLines = Math.max(linesProdi, linesLembaga);

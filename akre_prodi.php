@@ -161,14 +161,10 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                 <li><a href="layanan_pedadogik.php">Layanan Pedadogik</a></li>
             </ul>
           </li>
-          <li class="dropdown">
-            <a href=""><span>Akreditasi</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
-            <ul>
-                <li><a href="akre_perguruan.php">Perguruan Tinggi</a></li>
-                <li><a href="akre_unit.php">Unit Kerja</a></li>
-                <li><a href="akre_prodi.php" class="active">Program Studi</a></li>
-            </ul>
-          </li>
+          
+          <!-- NAVBAR AKREDITASI SUDAH JADI 1 KLIK -->
+          <li><a href="akreditasi.php" class="active">Akreditasi</a></li>
+
           <li class="dropdown">
             <a href=""><span>Program Fasilitasi P4M</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
@@ -196,6 +192,15 @@ while ($j = mysqli_fetch_assoc($qJur)) {
 
     <section id="service-details" class="service-details section">
       <div class="container" data-aos="fade-up">
+
+        <!-- ========================================== -->
+        <!-- TOMBOL BACK YANG KAMU MINTA -->
+        <!-- ========================================== -->
+        <div class="mb-4" data-aos="fade-up">
+            <a href="akreditasi.php" class="btn btn-outline-primary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Kembali ke Menu Akreditasi
+            </a>
+        </div>
 
         <ul class="nav nav-tabs nav-tabs-custom" id="myTab" role="tablist">
           <li class="nav-item" role="presentation">
@@ -499,7 +504,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
             <li><a href="index.php">Home</a></li>
             <li><a href="index.php#features">Aplikasi</a></li>
             <li><a href="https://e-kuesioner.polibatam.ac.id/polibatam">Layanan</a></li>
-            <li><a href="akre_perguruan.php">Akreditasi</a></li>
+            <li><a href="akreditasi.php">Akreditasi</a></li>
             <li><a href="buku_isbn.php">Program Fasilitasi P4M</a></li>
             <li><a href="berita.php">Berita</a></li>
           </ul>

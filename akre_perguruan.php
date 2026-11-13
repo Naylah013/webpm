@@ -27,7 +27,6 @@ $akreditasi_perguruan = query("SELECT ap.*, l.nama_lembaga
   <link href="assets/css/main.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-
   <style>
     .table-custom {
       background-color: white;
@@ -70,18 +69,15 @@ $akreditasi_perguruan = query("SELECT ap.*, l.nama_lembaga
       background-color: #0d83fd;
       border-color: #0d83fd;
     }
-
     .search-bar-wrapper {
       display: flex;
       justify-content: flex-start;
       margin-bottom: 20px;
     }
-
     .search-bar-wrapper form {
       display: flex;
       align-items: center; 
     }
-
     .search-bar {
       border: 1px solid #0d83fd;
       border-radius: 20px;
@@ -89,7 +85,6 @@ $akreditasi_perguruan = query("SELECT ap.*, l.nama_lembaga
       width: 250px;
       margin-right: -40px; 
     }
-
     .btn-cari {
       background-color: #0d83fd;
       color: white;
@@ -98,11 +93,9 @@ $akreditasi_perguruan = query("SELECT ap.*, l.nama_lembaga
       border: none;
       margin-left: -8px;
     }
-
     .btn-cari i {
       font-size: 16px;
     }
-
     .showing-info {
       font-size: 14px;
       color: #0d83fd;
@@ -134,14 +127,10 @@ $akreditasi_perguruan = query("SELECT ap.*, l.nama_lembaga
                 <li><a href="layanan_pedadogik.php">Layanan Pedadogik</a></li>
             </ul>
           </li>
-          <li class="dropdown">
-            <a href=""><span>Akreditasi</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
-            <ul>
-                <li><a href="akre_perguruan.php">Perguruan Tinggi</a></li>
-                <li><a href="akre_unit.php">Unit Kerja</a></li>
-                <li><a href="akre_prodi.php">Program Studi</a></li>
-            </ul>
-          </li>
+          
+          <!-- NAVBAR AKREDITASI SUDAH JADI 1 KLIK -->
+          <li><a href="akreditasi.php" class="active">Akreditasi</a></li>
+
           <li class="dropdown">
             <a href=""><span>Program Fasilitasi P4M</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
@@ -175,97 +164,104 @@ $akreditasi_perguruan = query("SELECT ap.*, l.nama_lembaga
     <section id="service-details" class="service-details section">
 
       <div class="container">
+        
+        <!-- ========================================== -->
+        <!-- TOMBOL BACK YANG KAMU MINTA -->
+        <!-- ========================================== -->
+        <div class="mb-4" data-aos="fade-up">
+            <a href="akreditasi.php" class="btn btn-outline-primary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Kembali ke Menu Akreditasi
+            </a>
+        </div>
+
         <!-- bagian isi tabel -->
-
-<!-- Table -->
-<div class="table-responsive">
-    <table class="table table-hover table-custom">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Peringkat</th>
-                <th>Lembaga</th>
-                <th>Tanggal Mulai</th>
-                <th>Tanggal Berakhir</th>
-                <th>Sertifikat</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php 
-            // MODIFIKASI: Ambil data dengan urutan terbaru dan grup per lembaga
-            $query_baru = "
-                SELECT ap.*, l.nama_lembaga 
-                FROM akreditasi_perguruan ap 
-                JOIN lembaga l ON ap.id_lembaga = l.id_lembaga
-                ORDER BY ap.tanggal_berakhir DESC
-            ";
-            $result_baru = mysqli_query($koneksi, $query_baru);
-            
-            // Kelompokkan data berdasarkan id_lembaga
-            $data_per_lembaga = [];
-            while ($row = mysqli_fetch_assoc($result_baru)) {
-                $id_lembaga = $row['id_lembaga'];
-                if (!isset($data_per_lembaga[$id_lembaga])) {
-                    $data_per_lembaga[$id_lembaga] = [
-                        'peringkat' => $row['peringkat'],
-                        'nama_lembaga' => $row['nama_lembaga'],
-                        'tanggal_mulai' => $row['tanggal_mulai'],
-                        'tanggal_berakhir' => $row['tanggal_berakhir'],
-                        'sertifikat_list' => []
-                    ];
-                }
-                // Tambahkan sertifikat ke list
-                if (!empty($row['sertifikat'])) {
-                    $data_per_lembaga[$id_lembaga]['sertifikat_list'][] = [
-                        'sertifikat' => $row['sertifikat'],
-                        'tanggal_berakhir' => $row['tanggal_berakhir']
-                    ];
-                }
-            }
-            
-            if (!empty($data_per_lembaga)):
-                $id = 1;
-                foreach ($data_per_lembaga as $lembaga):
-            ?>
-            <tr>
-                <td><?php echo $id; ?></td>
-                <td><?php echo htmlspecialchars($lembaga['peringkat']); ?></td>
-                <td><?php echo htmlspecialchars($lembaga['nama_lembaga']); ?></td>
-                <td><?php echo htmlspecialchars($lembaga['tanggal_mulai']); ?></td>
-                <td><?php echo htmlspecialchars($lembaga['tanggal_berakhir']); ?></td>
-                <td>
-                    <?php if (!empty($lembaga['sertifikat_list'])): ?>
-                        <div class="list-group">
-                            <?php foreach ($lembaga['sertifikat_list'] as $sertif): 
-                                $nama_file = basename($sertif['sertifikat']);
-                                // Bersihkan nama file dari angka di depan
-                                $nama_file_bersih = preg_replace('/^\d+-/', '', $nama_file);
-                            ?>
-                                <a href="admin/<?php echo $sertif['sertifikat']; ?>" target="_blank" class="list-group-item list-group-item-action">
-                                    <i class="fas fa-file-pdf text-danger me-2"></i>
-                                    <?php echo htmlspecialchars($nama_file_bersih); ?>
-                                    <small class="text-muted d-block"></small>
-                                </a>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php else: ?>
-                        <span class="text-muted">No File</span>
+        <div class="table-responsive">
+            <table class="table table-hover table-custom">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Peringkat</th>
+                        <th>Lembaga</th>
+                        <th>Tanggal Mulai</th>
+                        <th>Tanggal Berakhir</th>
+                        <th>Sertifikat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    // MODIFIKASI: Ambil data dengan urutan terbaru dan grup per lembaga
+                    $query_baru = "
+                        SELECT ap.*, l.nama_lembaga 
+                        FROM akreditasi_perguruan ap 
+                        JOIN lembaga l ON ap.id_lembaga = l.id_lembaga
+                        ORDER BY ap.tanggal_berakhir DESC
+                    ";
+                    $result_baru = mysqli_query($koneksi, $query_baru);
+                    
+                    // Kelompokkan data berdasarkan id_lembaga
+                    $data_per_lembaga = [];
+                    while ($row = mysqli_fetch_assoc($result_baru)) {
+                        $id_lembaga = $row['id_lembaga'];
+                        if (!isset($data_per_lembaga[$id_lembaga])) {
+                            $data_per_lembaga[$id_lembaga] = [
+                                'peringkat' => $row['peringkat'],
+                                'nama_lembaga' => $row['nama_lembaga'],
+                                'tanggal_mulai' => $row['tanggal_mulai'],
+                                'tanggal_berakhir' => $row['tanggal_berakhir'],
+                                'sertifikat_list' => []
+                            ];
+                        }
+                        // Tambahkan sertifikat ke list
+                        if (!empty($row['sertifikat'])) {
+                            $data_per_lembaga[$id_lembaga]['sertifikat_list'][] = [
+                                'sertifikat' => $row['sertifikat'],
+                                'tanggal_berakhir' => $row['tanggal_berakhir']
+                            ];
+                        }
+                    }
+                    
+                    if (!empty($data_per_lembaga)):
+                        $id = 1;
+                        foreach ($data_per_lembaga as $lembaga):
+                    ?>
+                    <tr>
+                        <td><?php echo $id; ?></td>
+                        <td><?php echo htmlspecialchars($lembaga['peringkat']); ?></td>
+                        <td><?php echo htmlspecialchars($lembaga['nama_lembaga']); ?></td>
+                        <td><?php echo htmlspecialchars($lembaga['tanggal_mulai']); ?></td>
+                        <td><?php echo htmlspecialchars($lembaga['tanggal_berakhir']); ?></td>
+                        <td>
+                            <?php if (!empty($lembaga['sertifikat_list'])): ?>
+                                <div class="list-group">
+                                    <?php foreach ($lembaga['sertifikat_list'] as $sertif): 
+                                        $nama_file = basename($sertif['sertifikat']);
+                                        // Bersihkan nama file dari angka di depan
+                                        $nama_file_bersih = preg_replace('/^\d+-/', '', $nama_file);
+                                    ?>
+                                        <a href="admin/<?php echo $sertif['sertifikat']; ?>" target="_blank" class="list-group-item list-group-item-action">
+                                            <i class="fas fa-file-pdf text-danger me-2"></i>
+                                            <?php echo htmlspecialchars($nama_file_bersih); ?>
+                                            <small class="text-muted d-block"></small>
+                                        </a>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php else: ?>
+                                <span class="text-muted">No File</span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php 
+                            $id++;
+                        endforeach;
+                    else: 
+                    ?>
+                        <tr>
+                            <td colspan="6">Tidak ada data yang tersedia.</td>
+                        </tr>
                     <?php endif; ?>
-                </td>
-            </tr>
-            <?php 
-                    $id++;
-                endforeach;
-            else: 
-            ?>
-                <tr>
-                    <td colspan="6">Tidak ada data yang tersedia.</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
-</div>
-
+                </tbody>
+            </table>
+        </div>
 
       </div>
 
@@ -298,7 +294,7 @@ $akreditasi_perguruan = query("SELECT ap.*, l.nama_lembaga
             <li><a href="index.php">Home</a></li>
             <li><a href="index.php#features">Aplikasi</a></li>
             <li><a href="https://e-kuesioner.polibatam.ac.id/polibatam">Layanan</a></li>
-            <li><a href="akre_perguruan.php">Akreditasi</a></li>
+            <li><a href="akreditasi.php">Akreditasi</a></li>
             <li><a href="buku_isbn.php">Program Fasilitasi P4M</a></li>
             <li><a href="berita.php">Berita</a></li>
           </ul>

@@ -42,14 +42,10 @@
                 <li><a href="layanan_pedadogik.php">Layanan Pedadogik</a></li>
             </ul>
           </li>
-          <li class="dropdown">
-            <a href=""><span>Akreditasi</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
-            <ul>
-                <li><a href="akre_perguruan.php">Perguruan Tinggi</a></li>
-                <li><a href="akre_unit.php">Unit Kerja</a></li>
-                <li><a href="akre_prodi.php">Program Studi</a></li>
-            </ul>
-          </li>
+          
+          <!-- BAGIAN AKREDITASI YANG DIUBAH (1 KLIK) -->
+          <li><a href="akreditasi.php">Akreditasi</a></li>
+          
           <li class="dropdown">
             <a href=""><span>Program Fasilitasi P4M</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
@@ -195,11 +191,6 @@
                 <h4>Survey Graduate</h4>
               </a>
             </li>
-            <!-- <li class="nav-item">
-              <a class="nav-link" data-bs-toggle="tab" data-bs-target="#features-tab-3">
-                <h4>Survey Layanan</h4>
-              </a>
-            </li> -->
             <li class="nav-item">
               <a class="nav-link" data-bs-toggle="tab" data-bs-target="#features-tab-4">
                 <h4>Intranet</h4>
@@ -283,31 +274,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Konten Tab 3 -->
-          <!-- <div class="tab-pane fade" id="features-tab-3">
-            <div class="row">
-              <div class="col-lg-6 order-2 order-lg-1 mt-3 mt-lg-0 d-flex flex-column justify-content-center">
-                <h3>Survey Layanan Polibatam</h3>
-                <p class="fst-italic">
-                  Politeknik Negeri Batam berkomitmen untuk meningkatkan kualitas lulusan sesuai kebutuhan industri, dengan fokus pada keterampilan akademis dan non akademis. 
-                  Aplikasi ini bertujuan untuk mengumpulkan masukan mengenai tingkat penguasaan keterampilan yang diperlukan lulusan dan industri agar nantinya dapat diterapkan pada kuruikulum Politeknik Negeri Batam.
-                </p>
-                <h5><b>Fitur Aplikasi Survey</b></h5>
-                <ul>
-                  <li><i class="bi bi-check2-all"></i> <span>Formulir survei yang membantu untuk membagikan pendapat responden dalam perbaikan kurikulum Polibatam.</span></li>
-                  <li><i class="bi bi-check2-all"></i> <span>Hasil survei berbentuk diagram.</span></li>
-                  <li><i class="bi bi-check2-all"></i> <span>Mengelola panduan aplikasi.</span></li>
-                </ul>
-                <div>
-                  <a href="#" >Akses Aplikasi</a>
-                </div>
-              </div>
-              <div class="col-lg-6 order-1 order-lg-2 text-center">
-                <img src="assets/img/survey_layanan.png" alt="" class="img-fluid">
-              </div>
-            </div>
-          </div> -->
 
           <!-- Konten Tab 4 -->
           <div class="tab-pane fade" id="features-tab-4">
@@ -717,7 +683,8 @@
             <li><a href="index.php">Home</a></li>
             <li><a href="index.php#features">Aplikasi</a></li>
             <li><a href="https://e-kuesioner.polibatam.ac.id/polibatam">Layanan</a></li>
-            <li><a href="akre_perguruan.php">Akreditasi</a></li>
+            <!-- DIUBAH KE AKREDITASI.PHP -->
+            <li><a href="akreditasi.php">Akreditasi</a></li>
             <li><a href="buku_isbn.php">Program Fasilitasi P4M</a></li>
             <li><a href="berita.php">Berita</a></li>
           </ul>
@@ -732,12 +699,13 @@
           </ul>
         </div>
 
+        <!-- FOOTER AKREDITASI DIBIARKAN SEPERTI ASLINYA, ATAU BISA JUGA KAMU HAPUS -->
         <div class="col-lg-2 col-md-3 footer-links">
           <h4>Akreditasi</h4>
           <ul>
-            <li><a href="akre_perguruan.php">Perguruan Tinggi</a></li>
-            <li><a href="akre_unit.php">Unit Kerja</a></li>
-            <li><a href="akre_prodi.php">Program Studi</a></li>
+            <li><a href="akreditasi.php">Perguruan Tinggi</a></li>
+            <li><a href="akreditasi.php">Unit Kerja</a></li>
+            <li><a href="akreditasi.php">Program Studi</a></li>
           </ul>
         </div>
 

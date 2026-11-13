@@ -8,7 +8,7 @@ include "koneksi.php";
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>P4M Polibatam</title>
+  <title>Akreditasi Unit Kerja - P4M Polibatam</title>
   <meta name="description" content="">
   <meta name="keywords" content="">
   <link href="assets/img/logo/polibatam.svg" rel="icon">
@@ -22,6 +22,7 @@ include "koneksi.php";
   <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
   <link href="assets/css/main.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 
   <style>
@@ -129,14 +130,10 @@ include "koneksi.php";
                 <li><a href="layanan_pedadogik.php">Layanan Pedadogik</a></li>
             </ul>
           </li>
-          <li class="dropdown">
-            <a href=""><span>Akreditasi</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
-            <ul>
-                <li><a href="akre_perguruan.php">Perguruan Tinggi</a></li>
-                <li><a href="akre_unit.php">Unit Kerja</a></li>
-                <li><a href="akre_prodi.php">Program Studi</a></li>
-            </ul>
-          </li>
+          
+          <!-- NAVBAR AKREDITASI SUDAH JADI 1 KLIK -->
+          <li><a href="akreditasi.php" class="active">Akreditasi</a></li>
+
           <li class="dropdown">
             <a href=""><span>Program Fasilitasi P4M</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
@@ -170,96 +167,105 @@ include "koneksi.php";
     <section id="service-details" class="service-details section">
 
       <div class="container">
+        
+        <!-- ========================================== -->
+        <!-- TOMBOL BACK YANG KAMU MINTA -->
+        <!-- ========================================== -->
+        <div class="mb-4" data-aos="fade-up">
+            <a href="akreditasi.php" class="btn btn-outline-primary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Kembali ke Menu Akreditasi
+            </a>
+        </div>
 
-                        <!-- Table -->
-                        <div class="table-responsive">
-                            <table class="table table-hover table-custom">
-                            <thead>
-                                <tr>
-                                <th>No</th>
-                                <th>Unit Kerja</th>
-                                <th>Peringkat</th>
-                                <th>Lembaga</th>
-                                <th>Tanggal Mulai</th>
-                                <th>Tanggal Berakhir</th>
-                                <th>Sertifikat</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            <?php
-                                $query = "
-                                SELECT a1.*, u.nama_unit_kerja, l.nama_lembaga
-                                FROM akreditasi a1
-                                INNER JOIN (
-                                    SELECT id_unit, MAX(tanggal_berakhir) AS max_tanggal
-                                    FROM akreditasi
-                                    WHERE akreditasi = 'unit kerja'
-                                    GROUP BY id_unit
-                                ) a2 ON a1.id_unit = a2.id_unit AND a1.tanggal_berakhir = a2.max_tanggal
-                                INNER JOIN unit u ON a1.id_unit = u.id_unit
-                                LEFT JOIN lembaga l ON a1.id_lembaga = l.id_lembaga
-                                WHERE a1.akreditasi = 'unit kerja'
-                                ORDER BY a1.tanggal_berakhir DESC
-                                ";
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover table-custom">
+            <thead>
+                <tr>
+                <th>No</th>
+                <th>Unit Kerja</th>
+                <th>Peringkat</th>
+                <th>Lembaga</th>
+                <th>Tanggal Mulai</th>
+                <th>Tanggal Berakhir</th>
+                <th>Sertifikat</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
+                $query = "
+                SELECT a1.*, u.nama_unit_kerja, l.nama_lembaga
+                FROM akreditasi a1
+                INNER JOIN (
+                    SELECT id_unit, MAX(tanggal_berakhir) AS max_tanggal
+                    FROM akreditasi
+                    WHERE akreditasi = 'unit kerja'
+                    GROUP BY id_unit
+                ) a2 ON a1.id_unit = a2.id_unit AND a1.tanggal_berakhir = a2.max_tanggal
+                INNER JOIN unit u ON a1.id_unit = u.id_unit
+                LEFT JOIN lembaga l ON a1.id_lembaga = l.id_lembaga
+                WHERE a1.akreditasi = 'unit kerja'
+                ORDER BY a1.tanggal_berakhir DESC
+                ";
 
-                                $result = mysqli_query($koneksi, $query);
-                                $id = 1;
+                $result = mysqli_query($koneksi, $query);
+                $id = 1;
 
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                    $id_unit = $row['id_unit'];
-                                    $nama_unit_kerja = $row['nama_unit_kerja'];
-                                    $peringkat = $row['peringkat'];
-                                    $id_lembaga = $row['id_lembaga'];
-                                    $nama_lembaga = $row['nama_lembaga'];
-                                    $tanggal_mulai = $row['tanggal_mulai'];
-                                    $tanggal_berakhir = $row['tanggal_berakhir'];
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $id_unit = $row['id_unit'];
+                    $nama_unit_kerja = $row['nama_unit_kerja'];
+                    $peringkat = $row['peringkat'];
+                    $id_lembaga = $row['id_lembaga'];
+                    $nama_lembaga = $row['nama_lembaga'];
+                    $tanggal_mulai = $row['tanggal_mulai'];
+                    $tanggal_berakhir = $row['tanggal_berakhir'];
 
-                                    // Ambil semua sertifikat milik unit kerja ini (bisa disortir pakai tanggal_mulai DESC)
-                                    $sertifikatQuery = "
-                                        SELECT sertifikat, tanggal_mulai, tanggal_berakhir 
-                                        FROM akreditasi 
-                                        WHERE id_unit = '$id_unit' AND akreditasi = 'unit kerja'
-                                        ORDER BY tanggal_berakhir DESC
-                                    ";
-                                    $sertifikatResult = mysqli_query($koneksi, $sertifikatQuery);
+                    // Ambil semua sertifikat milik unit kerja ini (bisa disortir pakai tanggal_mulai DESC)
+                    $sertifikatQuery = "
+                        SELECT sertifikat, tanggal_mulai, tanggal_berakhir 
+                        FROM akreditasi 
+                        WHERE id_unit = '$id_unit' AND akreditasi = 'unit kerja'
+                        ORDER BY tanggal_berakhir DESC
+                    ";
+                    $sertifikatResult = mysqli_query($koneksi, $sertifikatQuery);
 
-                                    $sertifikatList = [];
-                                    while ($s = mysqli_fetch_assoc($sertifikatResult)) {
-                                        $sertifikatList[] = $s;
-                                    }
+                    $sertifikatList = [];
+                    while ($s = mysqli_fetch_assoc($sertifikatResult)) {
+                        $sertifikatList[] = $s;
+                    }
 
-                                    echo "<tr>";
-                                    echo "<td>$id</td>";
-                                    echo "<td>$nama_unit_kerja</td>";
-                                    echo "<td>$peringkat</td>";
-                                    echo "<td>$nama_lembaga</td>";
-                                    echo "<td>$tanggal_mulai</td>";
-                                    echo "<td>$tanggal_berakhir</td>";
-                                    echo "<td>";
-                                    if (!empty($sertifikatList)) {
-                                        echo "<div class='list-group'>";
-                                        foreach ($sertifikatList as $s) {
-                                            $link = $s['sertifikat'];
-                                            $label = preg_replace('/^\d+-/', '', basename($s['sertifikat']));
-                                            $tanggal = $s['tanggal_berakhir'];
+                    echo "<tr>";
+                    echo "<td>$id</td>";
+                    echo "<td>$nama_unit_kerja</td>";
+                    echo "<td>$peringkat</td>";
+                    echo "<td>$nama_lembaga</td>";
+                    echo "<td>$tanggal_mulai</td>";
+                    echo "<td>$tanggal_berakhir</td>";
+                    echo "<td>";
+                    if (!empty($sertifikatList)) {
+                        echo "<div class='list-group'>";
+                        foreach ($sertifikatList as $s) {
+                            $link = $s['sertifikat'];
+                            $label = preg_replace('/^\d+-/', '', basename($s['sertifikat']));
+                            $tanggal = $s['tanggal_berakhir'];
 
-                                            echo "<a href='admin/$link' target='_blank' class='list-group-item list-group-item-action'>";
-                                            echo "<i class='fas fa-file-pdf text-danger me-2'></i> $label";
-                                            echo "</a>";
+                            echo "<a href='admin/$link' target='_blank' class='list-group-item list-group-item-action'>";
+                            echo "<i class='fas fa-file-pdf text-danger me-2'></i> $label";
+                            echo "</a>";
 
-                                        }
-                                        echo "</div>";
-                                    } else {
-                                        echo "<span class='text-muted'>No File</span>";
-                                    }
-                                    echo "</td>";                                        
-                                    echo "</tr>";
-                                    $id++;
-                                }
-                            ?>
-                            </tbody>
-                            </table>
-                        </div>
+                        }
+                        echo "</div>";
+                    } else {
+                        echo "<span class='text-muted'>No File</span>";
+                    }
+                    echo "</td>";                                        
+                    echo "</tr>";
+                    $id++;
+                }
+            ?>
+            </tbody>
+            </table>
+        </div>
 
       </div>
 
@@ -292,7 +298,7 @@ include "koneksi.php";
             <li><a href="index.php">Home</a></li>
             <li><a href="index.php#features">Aplikasi</a></li>
             <li><a href="https://e-kuesioner.polibatam.ac.id/polibatam">Layanan</a></li>
-            <li><a href="akre_perguruan.php">Akreditasi</a></li>
+            <li><a href="akreditasi.php">Akreditasi</a></li>
             <li><a href="buku_isbn.php">Program Fasilitasi P4M</a></li>
             <li><a href="berita.php">Berita</a></li>
           </ul>

@@ -17,7 +17,8 @@ $total_unit = mysqli_fetch_assoc($q_unit)['total'] ?? 0;
 $q_prodi = mysqli_query($koneksi, "
     SELECT 
         COUNT(DISTINCT CASE WHEN LOWER(ja.jenis_akreditasi) = 'internasional' THEN a1.id_prodi END) AS total_int,
-        COUNT(DISTINCT CASE WHEN LOWER(ja.jenis_akreditasi) != 'internasional' OR ja.jenis_akreditasi IS NULL THEN a1.id_prodi END) AS total_nas
+        COUNT(DISTINCT CASE WHEN ja.jenis_akreditasi IS NULL OR (LOWER(ja.jenis_akreditasi) != 'internasional' AND LOWER(ja.jenis_akreditasi) NOT LIKE '%tersertifikasi%') THEN a1.id_prodi END) AS total_nas,
+        COUNT(DISTINCT CASE WHEN LOWER(ja.jenis_akreditasi) LIKE '%tersertifikasi%' THEN a1.id_prodi END) AS total_cert
     FROM akreditasi a1
     LEFT JOIN jenis_akreditasi ja ON a1.id_jenis = ja.id_jenis
     WHERE a1.akreditasi = 'program studi'
@@ -25,7 +26,8 @@ $q_prodi = mysqli_query($koneksi, "
 $d_prodi = mysqli_fetch_assoc($q_prodi);
 $total_prodi_nas = $d_prodi['total_nas'] ?? 0;
 $total_prodi_int = $d_prodi['total_int'] ?? 0;
-$total_semua_prodi = $total_prodi_nas + $total_prodi_int;
+$total_prodi_cert = $d_prodi['total_cert'] ?? 0;
+$total_semua_prodi = $total_prodi_nas + $total_prodi_int + $total_prodi_cert;
 $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
 ?>
 
@@ -92,6 +94,10 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
       width: 160px; 
       height: 160px; 
       margin: 0 auto;
+    }
+    .chart-wrapper canvas {
+      position: relative;
+      z-index: 2; /* tooltip harus di atas teks 'TOTAL DATA' */
     }
 
     /* Kotak Kecil Statistik */
@@ -209,16 +215,12 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
             <div class="col-lg-3 text-center mb-4 mb-lg-0 border-end-lg">
               <div class="chart-wrapper">
                 <canvas id="donutChartAkreditasi"></canvas>
-                <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events: none;">
-                  <h2 class="mb-0 fw-bold" style="color: #1e2b4c;"><?= $total_semua_data ?></h2>
-                  <small class="text-muted fw-bold" style="font-size: 11px; letter-spacing: 0.5px;">TOTAL DATA</small>
-                </div>
               </div>
             </div>
 
-            <!-- KANAN: 4 Kotak Kecil -->
+            <!-- KANAN: 5 Kotak Kecil -->
             <div class="col-lg-9 ps-lg-5">
-              <div class="row row-cols-2 row-cols-md-4 g-3">
+              <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
                 
                 <!-- PT -->
                 <div class="col">
@@ -276,6 +278,21 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
                     <div>
                       <h3 class="fw-bold text-dark mb-1"><?= $total_prodi_int ?></h3>
                       <small class="text-muted fw-bold" style="font-size: 11px;">PRODI INTERNASIONAL</small>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Prodi Tersertifikasi -->
+                <div class="col">
+                  <div class="stat-card-small p-3 h-100 d-flex flex-column justify-content-between">
+                    <div class="mb-3">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; background: rgba(111,66,193,0.1); color: #6f42c1;">
+                        <i class="bi bi-patch-check fs-5"></i>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 class="fw-bold text-dark mb-1"><?= $total_prodi_cert ?></h3>
+                      <small class="text-muted fw-bold" style="font-size: 11px;">PRODI TERSERTIFIKASI</small>
                     </div>
                   </div>
                 </div>
@@ -428,48 +445,71 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
         <?= $total_pt ?>, 
         <?= $total_unit ?>, 
         <?= $total_prodi_nas ?>, 
-        <?= $total_prodi_int ?>
+        <?= $total_prodi_int ?>,
+        <?= $total_prodi_cert ?>
       ];
 
       const ctx = document.getElementById('donutChartAkreditasi').getContext('2d');
+      // Angka total digambar di dalam canvas (setelah pie, sebelum tooltip):
+      // selalu di atas warna, tapi tidak menimpa tooltip.
+      const angkaTengah = {
+        id: 'angkaTengah',
+        afterDatasetsDraw(c) {
+          const { ctx, chartArea } = c;
+          const cx = (chartArea.left + chartArea.right) / 2;
+          const cy = (chartArea.top + chartArea.bottom) / 2;
+          ctx.save();
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#fff';
+          ctx.shadowColor = 'rgba(0,0,0,0.55)';
+          ctx.shadowBlur = 6;
+          ctx.font = '700 32px Nunito, Inter, sans-serif';
+          ctx.fillText('<?= $total_semua_data ?>', cx, cy - 8);
+          ctx.font = '700 11px Nunito, Inter, sans-serif';
+          ctx.fillText('TOTAL DATA', cx, cy + 16);
+          ctx.restore();
+        }
+      };
+
       new Chart(ctx, {
         type: 'doughnut', 
+        plugins: [angkaTengah],
         data: {
-          labels: ['Perguruan Tinggi', 'Unit Kerja', 'Prodi Nasional', 'Prodi Internasional'],
+          labels: ['Perguruan Tinggi', 'Unit Kerja', 'Prodi Nasional', 'Prodi Internasional', 'Prodi Tersertifikasi'],
           datasets: [{
             data: dataStatistik,
             backgroundColor: [
               '#0d83fd', // Primary
               '#198754', // Success
               '#0dcaf0', // Info
-              '#ffc107'  // Warning
+              '#ffc107', // Warning
+              '#6f42c1'  // Ungu (Tersertifikasi)
             ],
-            borderWidth: 4, 
-            borderColor: '#fff',
+            borderWidth: 0, // tanpa garis putih pemisah antar segmen
             hoverOffset: 8
           }]
         },
         options: { 
           responsive: true, 
           maintainAspectRatio: false, 
-          cutout: '75%', 
+          cutout: '0%', // pie penuh, tanpa lubang tengah
+          layout: { padding: 10 },
+          
           plugins: { 
             legend: { display: false },
             tooltip: {
-              backgroundColor: 'rgba(0,0,0,0.8)',
+              backgroundColor: 'rgba(0,0,0,0.92)',
               padding: 12,
               titleFont: { size: 14, weight: 'bold' },
               bodyFont: { size: 13 },
               callbacks: {
                 label: function(context) {
-                  let label = context.label || '';
-                  if (label) { label += ': '; }
-                  if (context.parsed !== null) {
-                    let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                    let percentage = Math.round((context.parsed / total) * 100) + '%';
-                    label += context.parsed + ' (' + percentage + ')';
-                  }
-                  return label;
+                  // Nama kategori sudah tampil di judul tooltip, jadi cukup angka + persen
+                  // (supaya tidak terpotong oleh batas canvas yang kecil)
+                  let total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  let percentage = total ? Math.round((context.parsed / total) * 100) + '%' : '0%';
+                  return ' ' + context.parsed + ' (' + percentage + ')';
                 }
               }
             }

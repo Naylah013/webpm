@@ -269,10 +269,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
               <div class="col-lg-3">
                 <div class="position-relative mx-auto" style="width: 150px; height: 150px;">
                   <canvas id="donutChartNasional"></canvas>
-                  <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events: none;">
-                    <h3 class="mb-0 fw-bold" style="color: #1e2b4c;"><?= $total_semua_nas ?></h3>
-                    <small class="text-muted">data</small>
-                  </div>
                 </div>
               </div>
 
@@ -286,28 +282,28 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                 <div class="row g-2">
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('nasional', 'kategori', 'unggul')">
-                      <div class="stat-label"><span class="dot" style="background:#4A90E2;"></span> Unggul</div>
+                      <div class="stat-label"><span class="dot" style="background:#6BE5E8;"></span> Unggul</div>
                       <div class="stat-number"><?= $total_unggul_nas ?></div>
                       <div class="stat-desc"><?= $pct_unggul_nas ?>%</div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('nasional', 'kategori', 'baik sekali')">
-                      <div class="stat-label"><span class="dot" style="background:#50E3C2;"></span> Baik Sekali</div>
+                      <div class="stat-label"><span class="dot" style="background:#3DB4D3;"></span> Baik Sekali</div>
                       <div class="stat-number"><?= $total_baik_sekali_nas ?></div>
                       <div class="stat-desc"><?= $pct_baik_sekali_nas ?>%</div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('nasional', 'kategori', 'baik')">
-                      <div class="stat-label"><span class="dot" style="background:#FFE082;"></span> Baik</div>
+                      <div class="stat-label"><span class="dot" style="background:#2B87BB;"></span> Baik</div>
                       <div class="stat-number"><?= $total_baik_nas ?></div>
                       <div class="stat-desc"><?= $pct_baik_nas ?>%</div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('nasional', 'kategori', 'terakreditasi')">
-                      <div class="stat-label"><span class="dot" style="background:#F48FB1;"></span> Terakreditasi</div>
+                      <div class="stat-label"><span class="dot" style="background:#5E3463;"></span> Terakreditasi</div>
                       <div class="stat-number"><?= $total_terakreditasi_nas ?></div>
                       <div class="stat-desc"><?= $pct_terakreditasi_nas ?>%</div>
                     </div>
@@ -408,10 +404,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
               <div class="col-lg-3">
                 <div class="position-relative mx-auto" style="width: 150px; height: 150px;">
                   <canvas id="donutChartInternasional"></canvas>
-                  <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events: none;">
-                    <h3 class="mb-0 fw-bold" style="color: #1e2b4c;"><?= $total_semua_int ?></h3>
-                    <small class="text-muted">data</small>
-                  </div>
                 </div>
               </div>
 
@@ -425,28 +417,28 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                 <div class="row g-2">
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('internasional', 'kategori', 'unggul')">
-                      <div class="stat-label"><span class="dot" style="background:#4A90E2;"></span> Unggul</div>
+                      <div class="stat-label"><span class="dot" style="background:#6BE5E8;"></span> Unggul</div>
                       <div class="stat-number"><?= $total_unggul_int ?></div>
                       <div class="stat-desc"><?= $pct_unggul_int ?>%</div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('internasional', 'kategori', 'baik sekali')">
-                      <div class="stat-label"><span class="dot" style="background:#50E3C2;"></span> Baik Sekali</div>
+                      <div class="stat-label"><span class="dot" style="background:#3DB4D3;"></span> Baik Sekali</div>
                       <div class="stat-number"><?= $total_baik_sekali_int ?></div>
                       <div class="stat-desc"><?= $pct_baik_sekali_int ?>%</div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('internasional', 'kategori', 'baik')">
-                      <div class="stat-label"><span class="dot" style="background:#FFE082;"></span> Baik</div>
+                      <div class="stat-label"><span class="dot" style="background:#2B87BB;"></span> Baik</div>
                       <div class="stat-number"><?= $total_baik_int ?></div>
                       <div class="stat-desc"><?= $pct_baik_int ?>%</div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('internasional', 'kategori', 'terakreditasi')">
-                      <div class="stat-label"><span class="dot" style="background:#F48FB1;"></span> Terakreditasi</div>
+                      <div class="stat-label"><span class="dot" style="background:#5E3463;"></span> Terakreditasi</div>
                       <div class="stat-number"><?= $total_terakreditasi_int ?></div>
                       <div class="stat-desc"><?= $pct_terakreditasi_int ?>%</div>
                     </div>
@@ -547,10 +539,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
               <div class="col-lg-3">
                 <div class="position-relative mx-auto" style="width: 150px; height: 150px;">
                   <canvas id="donutChartTersertifikasi"></canvas>
-                  <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events: none;">
-                    <h3 class="mb-0 fw-bold" style="color: #1e2b4c;"><?= $total_semua_cert ?></h3>
-                    <small class="text-muted">data</small>
-                  </div>
                 </div>
               </div>
 
@@ -564,28 +552,28 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                 <div class="row g-2">
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('tersertifikasi', 'kategori', 'unggul')">
-                      <div class="stat-label"><span class="dot" style="background:#4A90E2;"></span> Unggul</div>
+                      <div class="stat-label"><span class="dot" style="background:#6BE5E8;"></span> Unggul</div>
                       <div class="stat-number"><?= $total_unggul_cert ?></div>
                       <div class="stat-desc"><?= $pct_unggul_cert ?>%</div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('tersertifikasi', 'kategori', 'baik sekali')">
-                      <div class="stat-label"><span class="dot" style="background:#50E3C2;"></span> Baik Sekali</div>
+                      <div class="stat-label"><span class="dot" style="background:#3DB4D3;"></span> Baik Sekali</div>
                       <div class="stat-number"><?= $total_baik_sekali_cert ?></div>
                       <div class="stat-desc"><?= $pct_baik_sekali_cert ?>%</div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('tersertifikasi', 'kategori', 'baik')">
-                      <div class="stat-label"><span class="dot" style="background:#FFE082;"></span> Baik</div>
+                      <div class="stat-label"><span class="dot" style="background:#2B87BB;"></span> Baik</div>
                       <div class="stat-number"><?= $total_baik_cert ?></div>
                       <div class="stat-desc"><?= $pct_baik_cert ?>%</div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="stat-card" onclick="setFilter('tersertifikasi', 'kategori', 'terakreditasi')">
-                      <div class="stat-label"><span class="dot" style="background:#F48FB1;"></span> Terakreditasi</div>
+                      <div class="stat-label"><span class="dot" style="background:#5E3463;"></span> Terakreditasi</div>
                       <div class="stat-number"><?= $total_terakreditasi_cert ?></div>
                       <div class="stat-desc"><?= $pct_terakreditasi_cert ?>%</div>
                     </div>
@@ -762,50 +750,92 @@ while ($j = mysqli_fetch_assoc($qJur)) {
     document.addEventListener("DOMContentLoaded", function() {
       AOS.init({ duration: 600, once: true, easing: 'ease-out-cubic' });
 
-      const softColors = ['#4A90E2', '#50E3C2', '#FFE082', '#F48FB1']; 
+      const softColors = ['#6BE5E8', '#3DB4D3', '#2B87BB', '#5E3463']; 
       const labelsKategori = ['Unggul', 'Baik Sekali', 'Baik', 'Terakreditasi'];
 
-      // Chart Nasional
-      const ctxNas = document.getElementById('donutChartNasional').getContext('2d');
-      new Chart(ctxNas, {
-        type: 'doughnut', 
-        data: {
-          labels: labelsKategori,
-          datasets: [{
-            data: [<?= $total_unggul_nas ?>, <?= $total_baik_sekali_nas ?>, <?= $total_baik_nas ?>, <?= $total_terakreditasi_nas ?>],
-            backgroundColor: softColors, borderWidth: 2, borderColor: '#fff'
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } }
-      });
+      function buatDonut(suf, data, total) {
+        const canvas = document.getElementById('donutChart' + suf);
+        let terpilih = null;
+        let teksAngka = String(total);
+        let teksLabel = 'data';
 
-      // Chart Internasional
-      const ctxInt = document.getElementById('donutChartInternasional').getContext('2d');
-      new Chart(ctxInt, {
-        type: 'doughnut', 
-        data: {
-          labels: labelsKategori,
-          datasets: [{
-            data: [<?= $total_unggul_int ?>, <?= $total_baik_sekali_int ?>, <?= $total_baik_int ?>, <?= $total_terakreditasi_int ?>],
-            backgroundColor: softColors, borderWidth: 2, borderColor: '#fff'
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } }
-      });
+        // Angka tengah digambar di dalam canvas (setelah pie, sebelum tooltip)
+        // sehingga selalu di atas warna, tapi tidak menimpa tooltip.
+        const angkaTengah = {
+          id: 'angkaTengah',
+          afterDatasetsDraw(c) {
+            const { ctx, chartArea } = c;
+            const cx = (chartArea.left + chartArea.right) / 2;
+            const cy = (chartArea.top + chartArea.bottom) / 2;
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = 'rgba(0,0,0,0.55)';
+            ctx.shadowBlur = 6;
+            ctx.font = '700 32px Nunito, Inter, sans-serif';
+            ctx.fillText(teksAngka, cx, cy - 8);
+            ctx.font = '600 13px Nunito, Inter, sans-serif';
+            ctx.fillText(teksLabel, cx, cy + 16);
+            ctx.restore();
+          }
+        };
 
-      // Chart Tersertifikasi
-      const ctxCert = document.getElementById('donutChartTersertifikasi').getContext('2d');
-      new Chart(ctxCert, {
-        type: 'doughnut', 
-        data: {
-          labels: labelsKategori,
-          datasets: [{
-            data: [<?= $total_unggul_cert ?>, <?= $total_baik_sekali_cert ?>, <?= $total_baik_cert ?>, <?= $total_terakreditasi_cert ?>],
-            backgroundColor: softColors, borderWidth: 2, borderColor: '#fff'
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false } } }
-      });
+        const chart = new Chart(canvas.getContext('2d'), {
+          type: 'doughnut',
+          plugins: [angkaTengah],
+          data: {
+            labels: labelsKategori,
+            datasets: [{
+              data: data,
+              backgroundColor: softColors,
+              borderWidth: 0,
+              offset: [0, 0, 0, 0],
+              hoverOffset: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '0%', // pie penuh, tanpa lubang tengah
+            layout: { padding: 6 },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.92)',
+                padding: 8,
+                titleFont: { size: 12, weight: 'bold' },
+                bodyFont: { size: 12 },
+                callbacks: {
+                  title: (items) => items[0].label,
+                  label: (ctx) => {
+                    const jumlah = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                    const persen = jumlah ? Math.round((ctx.parsed / jumlah) * 100) : 0;
+                    return ' ' + ctx.parsed + ' (' + persen + '%)';
+                  }
+                }
+              }
+            },
+            onHover: (evt, els) => { evt.native.target.style.cursor = els.length ? 'pointer' : 'default'; },
+            onClick: (evt, els) => {
+              if (!els.length || terpilih === els[0].index) {
+                terpilih = null;               // klik lagi / klik area kosong = kembali ke total
+              } else {
+                terpilih = els[0].index;
+              }
+              const ds = chart.data.datasets[0];
+              ds.offset = ds.data.map((_, i) => i === terpilih ? 6 : 0);
+              teksAngka = String(terpilih === null ? total : data[terpilih]);
+              teksLabel = terpilih === null ? 'data' : labelsKategori[terpilih];
+              chart.update();
+            }
+          }
+        });
+      }
+
+      buatDonut('Nasional', [<?= $total_unggul_nas ?>, <?= $total_baik_sekali_nas ?>, <?= $total_baik_nas ?>, <?= $total_terakreditasi_nas ?>], <?= $total_semua_nas ?>);
+      buatDonut('Internasional', [<?= $total_unggul_int ?>, <?= $total_baik_sekali_int ?>, <?= $total_baik_int ?>, <?= $total_terakreditasi_int ?>], <?= $total_semua_int ?>);
+      buatDonut('Tersertifikasi', [<?= $total_unggul_cert ?>, <?= $total_baik_sekali_cert ?>, <?= $total_baik_cert ?>, <?= $total_terakreditasi_cert ?>], <?= $total_semua_cert ?>);
     });
 
     let filterState = {

@@ -90,37 +90,30 @@ if (mysqli_num_rows($result_riwayat) > 0) {
     .content-card { background: #fff; border-radius: 16px; box-shadow: 0 6px 25px rgba(13, 131, 253, 0.05); border: 1px solid rgba(13, 131, 253, 0.1); padding: 30px; margin-bottom: 24px; }
     .detail-head { border-left: 5px solid #0d83fd; padding-left: 20px; }
     
-    /* CSS BADGE DISAMAKAN DENGAN EFEK KOTAK KPS */
-    .badge-custom { 
-      font-size: 13px; 
-      padding: 6px 14px; 
-      border-radius: 8px; 
-      background: #e6f2ff; 
-      color: #0a6fd8; 
-      font-weight: 600; 
-      margin-bottom: 10px; 
-      display: inline-block; 
-      margin-right: 5px;
-      border: 1px solid transparent; /* Tambahan agar sama dengan kps-box yang punya border */
-      transition: 0.3s; /* Sama persis dengan kps-box */
-      cursor: default;
+    /* Desain teks header yang rapi tanpa kotak */
+    .header-meta {
+      font-size: 14px;
+      color: #64748b;
+      font-weight: 500;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
     }
-
-    /* Efek saat disentuh (Hover) - Persis seperti kps-box */
-    .badge-custom:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 15px rgba(13, 131, 253, 0.08);
+    .header-meta span {
+      margin: 0 8px;
+      color: #cbd5e1;
     }
-    /* AKHIR CSS BADGE */
 
     .detail-head h2 { font-size: 32px; font-weight: 800; color: #1e2b4c; margin-bottom: 8px; }
     .detail-head p { color: #6c757d; font-size: 15px; margin: 0; }
+    
     .kps-box { background: #f4f8fe; border-radius: 12px; padding: 20px; border: 1px solid #d0e3fa; display: flex; align-items: flex-start; gap: 15px; transition: 0.3s; }
     .kps-box:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(13, 131, 253, 0.08); }
     .kps-icon { width: 40px; height: 40px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #0d83fd; font-size: 20px; box-shadow: 0 2px 10px rgba(13, 131, 253, 0.1); }
     .kps-box .label { font-size: 13px; color: #6c757d; margin-bottom: 4px; }
     .kps-box .mail { font-weight: 700; color: #1e2b4c; font-size: 16px; }
     .kps-box .note { font-size: 13px; color: #1a7f4b; margin-top: 4px; font-weight: 500; }
+    
     .table-custom { vertical-align: middle; margin-bottom: 0; }
     .table-custom thead th { background-color: #f8f9fa; color: #1e2b4c; font-weight: 700; padding: 16px; border-bottom: 2px solid #dee2e6; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
     .table-custom tbody td { padding: 16px; border-bottom: 1px solid #e9ecef; color: #495057; font-size: 15px; }
@@ -185,12 +178,14 @@ if (mysqli_num_rows($result_riwayat) > 0) {
         <div class="row align-items-center">
           <div class="col-lg-6 mb-4 mb-lg-0">
             <div class="detail-head">
-              <div>
-                <span class="badge-custom">Jurusan <?= htmlspecialchars($data_prodi['nama_jurusan']) ?></span>
-                <span class="badge-custom"><?= htmlspecialchars($tipe_akreditasi_tampil) ?></span>
+              <!-- Bagian teks meta diganti menjadi teks profesional tanpa background -->
+              <div class="header-meta">
+                <?= htmlspecialchars($data_prodi['nama_jurusan']) ?> 
+                <span>|</span> 
+                <?= htmlspecialchars($tipe_akreditasi_tampil) ?>
               </div>
+              
               <h2><?= htmlspecialchars($data_prodi['nama_program_studi']) ?></h2>
-              <!-- LEMBAGA DIUBAH JADI KAPITAL SEMUA PAKAI strtoupper() -->
               <p>Lembaga Pengakreditasi: <b><?= strtoupper(htmlspecialchars($lembaga_terbaru)) ?></b></p>
             </div>
           </div>
@@ -237,7 +232,10 @@ if (mysqli_num_rows($result_riwayat) > 0) {
               ?>
                   <tr>
                     <td class="text-center fw-bold text-muted"><?= $no++ ?></td>
-                    <td class="text-center"><span class="badge-custom"><?= htmlspecialchars($riwayat['jenis_akreditasi'] ?? '-') ?></span></td>
+                    <!-- Jenis Akreditasi diubah jadi teks biasa (tanpa kotak) dan ditambahkan fw-medium agar tebal seimbang -->
+                    <td class="text-center text-dark fw-medium">
+                        <?= htmlspecialchars($riwayat['jenis_akreditasi'] ?? '-') ?>
+                    </td>
                     <td class="text-center text-dark fw-medium"><?= date('d M Y', strtotime($riwayat['tanggal_mulai'])) ?></td>
                     <td class="text-center text-dark fw-medium"><?= date('d M Y', strtotime($riwayat['tanggal_berakhir'])) ?></td>
                     <td><span class="fw-medium"><?= htmlspecialchars($riwayat['peringkat']) ?></span></td>

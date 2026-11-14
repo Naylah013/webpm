@@ -141,14 +141,10 @@ if (mysqli_num_rows($result_riwayat) > 0) {
               <li><a href="standar_layanan.php">Standar Layanan Polibatam</a></li>
             </ul>
           </li>
-          <li class="dropdown">
-            <a href="" class="active"><span>Akreditasi</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
-            <ul>
-              <li><a href="akre_perguruan.php">Perguruan Tinggi</a></li>
-              <li><a href="akre_unit.php">Unit Kerja</a></li>
-              <li><a href="akre_prodi.php" class="active">Program Studi</a></li>
-            </ul>
-          </li>
+          
+          <!-- NAVBAR AKREDITASI SUDAH JADI 1 KLIK -->
+          <li><a href="akreditasi.php" class="active">Akreditasi</a></li>
+
           <li class="dropdown">
             <a href=""><span>Program Fasilitasi P4M</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>

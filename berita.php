@@ -47,14 +47,7 @@ $berita = query("SELECT * FROM berita ORDER BY tanggal DESC");
               <li><a href="layanan_pedadogik.php">Layanan Pedadogik</a></li>
             </ul>
           </li>
-          <li class="dropdown">
-            <a href=""><span>Akreditasi</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
-            <ul>
-                <li><a href="akre_perguruan.php">Perguruan Tinggi</a></li>
-                <li><a href="akre_unit.php">Unit Kerja</a></li>
-                <li><a href="akre_prodi.php">Program Studi</a></li>
-            </ul>
-          </li>
+          <li><a href="akreditasi.php">Akreditasi</a></li>
           <li class="dropdown">
             <a href=""><span>Program Fasilitasi P4M</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
@@ -130,7 +123,7 @@ $berita = query("SELECT * FROM berita ORDER BY tanggal DESC");
             <li><a href="index.php">Home</a></li>
             <li><a href="index.php#features">Aplikasi</a></li>
             <li><a href="https://e-kuesioner.polibatam.ac.id/polibatam">Layanan</a></li>
-            <li><a href="akre_perguruan.php">Akreditasi</a></li>
+            <li><a href="akreditasi.php">Akreditasi</a></li>
             <li><a href="buku_isbn.php">Program Fasilitasi P4M</a></li>
             <li><a href="berita.php">Berita</a></li>
           </ul>

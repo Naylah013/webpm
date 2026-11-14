@@ -163,14 +163,7 @@ if ($tahun_filter) {
                 <li><a href="layanan_pedadogik.php">Layanan Pedadogik</a></li>
             </ul>
           </li>
-          <li class="dropdown">
-            <a href=""><span>Akreditasi</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
-            <ul>
-                <li><a href="akre_perguruan.php">Perguruan Tinggi</a></li>
-                <li><a href="akre_unit.php">Unit Kerja</a></li>
-                <li><a href="akre_prodi.php">Program Studi</a></li>
-            </ul>
-          </li>
+          <li><a href="akreditasi.php">Akreditasi</a></li>
           <li class="dropdown">
             <a href=""><span>Program Fasilitasi P4M</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>

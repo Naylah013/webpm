@@ -1,23 +1,45 @@
-
-# Environment dan credential
+# Environment
 .env
 .env.*
 !.env.example
 
-# Backup database
+# Konfigurasi database
+koneksi.php
+config/database.php
+config/*.local.php
+*.env
+
+# Backup database & arsip
 *.sql
 *.sql.gz
-
-# Backup dan arsip
-*.zip
+!schema.sql
 *.tar
 *.tar.gz
+*.zip
+webpm-backup-*.tar.gz
 
-# File sistem dan editor
+# File sistem & editor
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
-# Log
+# Log & cache
 *.log
+cache/
+temp/
+
+# Unggahan pengguna
+uploads/
+upload/
+assets/uploads/
+public/uploads/
+
+# Salinan kode lama (327 MB, tidak dipakai)
+webpm/
+
+# File sementara / tidak perlu di-commit
+info.php

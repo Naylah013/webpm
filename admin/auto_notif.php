@@ -6,20 +6,22 @@ use PHPMailer\PHPMailer\Exception;
 if (file_exists('../vendor/autoload.php')) {
     require '../vendor/autoload.php';
 }
+
+// Set zona waktu dan sinkronisasi jam database
 date_default_timezone_set('Asia/Jakarta');
-mysqli_query($koneksi, "SET time_zone = '+07:00'"); // Sinkronisasi jam DB
+mysqli_query($koneksi, "SET time_zone = '+07:00'"); 
 
 // ==========================================
-// PENGATURAN JAM PENGIRIMAN (UBAH JADI 14:00)
+// PENGATURAN JAM PENGIRIMAN (JAM 08:00 PAGI)
 // ==========================================
-$jam_pengiriman = '14:03'; 
+$jam_pengiriman = '08:00'; 
 $jam_sekarang = date('H:i');
 
 // Jika jam sekarang SAMA DENGAN jam pengiriman, baru jalankan fungsi
 if ($jam_sekarang === $jam_pengiriman) {
     $today_date = date('Y-m-d');
 
-    function proses_notifikasi($koneksi, $tanggal_berakhir, $id_target, $jenis_target, $email_penerima, $nama_penerima, $nama_target) {
+    function proses_notifikasi($koneksi, $tanggal_berakhir, $id_target, $jenis_target, $email_penerima, $nama_target) {
         global $today_date;
 
         if (empty($email_penerima)) return;
@@ -29,21 +31,15 @@ if ($jam_sekarang === $jam_pengiriman) {
         $selisih = $tgl_mulai->diff($tgl_akhir)->days;
         $jenis_notif = '';
         
-        // Logika Normal
+        // Logika Normal Pengecekan Selisih Tanggal
         if ($selisih == 365) $jenis_notif = '1_tahun';
         elseif ($selisih == 180) $jenis_notif = '6_bulan';
         elseif ($selisih == 30) $jenis_notif = '1_bulan';
         elseif ($selisih == 1) $jenis_notif = '1_hari';
 
-        // --- FITUR DEBUG (TAMPILKAN DI LAYAR) ---
-        // Ini biar kamu tahu sistem ngecek selisih berapa
-        echo "<div style='position:fixed; top:10px; left:10px; background:black; color:lime; padding:5px; z-index:9999; font-size:12px;'>";
-        echo "Cek: $nama_target | Selisih: $selisih hari | Notif: " . ($jenis_notif ? $jenis_notif : 'Tidak ada') . "<br>";
-        echo "</div>";
-        // ----------------------------------------
-
         if ($jenis_notif != '') {
             
+            // Cek log untuk mencegah pengiriman ganda di hari yang sama
             $cek_log = mysqli_query($koneksi, "SELECT * FROM log_notifikasi 
                 WHERE jenis_target='$jenis_target' 
                 AND id_target='$id_target' 
@@ -59,40 +55,46 @@ if ($jam_sekarang === $jam_pengiriman) {
                     $mail->Host       = 'smtp.office365.com'; 
                     $mail->SMTPAuth   = true;
                     $mail->Username   = 'p4m@polibatam.ac.id'; 
-                    $mail->Password   = 'Polisi_militer789'; // GANTI INI
+                    $mail->Password   = 'Polisi_militer789'; // Pastikan password ini aman
                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                     $mail->Port       = 587;
                     $mail->setFrom('p4m@polibatam.ac.id', 'P4M Polibatam');
-                    $mail->addAddress($email_penerima, $nama_penerima);
+                    $mail->addAddress($email_penerima);
                     $mail->isHTML(true);
-                    $mail->Subject = "Peringatan Akreditasi: $nama_target ($jenis_notif)";
+                    
+                    // Format Subject Email
+                    $mail->Subject = "Peringatan Akreditasi: $nama_target";
+                    
+                    // Format Body Email Sesuai Permintaan Dosen
                     $mail->Body = "
-                        <p>Yth. <b>$nama_penerima</b>,</p>
-                        <p>Kami informasikan bahwa masa berlaku akreditasi untuk <b>$nama_target</b> akan berakhir pada <b>$tanggal_berakhir</b>.</p>
-                        <p>Status peringatan: <b>$jenis_notif</b> sebelum masa berlaku habis.</p>
-                        <p>Mohon untuk segera melakukan persiapan perpanjangan akreditasi.</p>
+                        <p>Yth. Bapak/Ibu Ketua Program Studi <b>$nama_target</b>,</p>
                         <br>
-                        <p>Terima kasih.</p>
-                        <p><b>Pusat Penjaminan Mutu dan Pengembangan Pembelajaran (P4M)</b></p>
+                        <p>Kami informasikan bahwa masa berlaku akreditasi Program Studi <b>$nama_target</b> akan berakhir pada <b>$tanggal_berakhir</b>.</p>
+                        <br>
+                        <p>Demikian pemberitahuan ini kami sampaikan. Terima kasih.</p>
+                        <br>
+                        <p>Hormat kami,<br>
+                        Pusat Penjaminan Mutu dan Pengembangan Pembelajaran (P4M)<br>
+                        Politeknik Negeri Batam</p>
                     ";
+                    
                     $mail->send();
 
+                    // Simpan log jika berhasil
                     mysqli_query($koneksi, "INSERT INTO log_notifikasi (jenis_target, id_target, jenis_notif, tanggal_kirim) 
                         VALUES ('$jenis_target', '$id_target', '$jenis_notif', NOW())");
-                    
-                    echo "<div style='position:fixed; top:40px; left:10px; background:green; color:white; padding:5px; z-index:9999; font-size:12px;'>EMAIL BERHASIL DIKIRIM KE: $email_penerima</div>";
 
                 } catch (Exception $e) {
-                    echo "<div style='position:fixed; top:40px; left:10px; background:red; color:white; padding:5px; z-index:9999; font-size:12px;'>GAGAL: " . $mail->ErrorInfo . "</div>";
+                    // Hanya catat error di log server, tidak ditampilkan ke layar
                     error_log("Gagal kirim email ke $email_penerima: " . $mail->ErrorInfo);
                 }
-            } else {
-                echo "<div style='position:fixed; top:40px; left:10px; background:orange; color:black; padding:5px; z-index:9999; font-size:12px;'>Batal: Email hari ini sudah pernah dikirim (Cek log_notifikasi)</div>";
             }
         }
     }
 
-    // Cek Program Studi
+    // ==========================================
+    // QUERY DATABASE (MENGAMBIL SEMUA PRODI)
+    // ==========================================
     $query_prodi = mysqli_query($koneksi, "
         SELECT a.tanggal_berakhir, ps.id_prodi, ps.nama_program_studi, ps.email_kps
         FROM akreditasi a
@@ -106,12 +108,9 @@ if ($jam_sekarang === $jam_pengiriman) {
 
     if ($query_prodi) {
         while ($row = mysqli_fetch_assoc($query_prodi)) {
-            proses_notifikasi($koneksi, $row['tanggal_berakhir'], $row['id_prodi'], 'program_studi', $row['email_kps'], 'Ketua Program Studi', $row['nama_program_studi']);
+            proses_notifikasi($koneksi, $row['tanggal_berakhir'], $row['id_prodi'], 'program_studi', $row['email_kps'], $row['nama_program_studi']);
         }
     }
-
-} else {
-    // Pesan kalau belum jam 14:00
-    echo "<div style='position:fixed; top:10px; left:10px; background:gray; color:white; padding:5px; z-index:9999; font-size:12px;'>Menunggu jam 14:00. Sekarang jam: $jam_sekarang</div>";
 }
+// Selesai. Tidak ada blok "else" untuk menampilkan pesan menunggu.
 ?>

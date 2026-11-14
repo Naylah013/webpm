@@ -127,7 +127,7 @@ if (mysqli_num_rows($result_riwayat) > 0) {
   <header id="header" class="header d-flex align-items-center fixed-top">
     <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
       <a href="index.php" class="logo d-flex align-items-center me-auto me-xl-0">
-        <img src="assets/img/logo/Polibatam.svg" alt="Logo">
+        <img src="assets/img/logo/polibatam.svg" alt="Logo">
         <h1 class="sitename">P4M Polibatam</h1>
       </a>
       <nav id="navmenu" class="navmenu">

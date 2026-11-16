@@ -171,7 +171,7 @@ $isi_pedadogik = query("SELECT * FROM isi_pedadogik WHERE id_pedadogik = $id_ped
             <li><a href="index.php">Home</a></li>
             <li><a href="index.php#features">Aplikasi</a></li>
             <li><a href="https://e-kuesioner.polibatam.ac.id/polibatam">Layanan</a></li>
-            <li><a href="akre_perguruan.php">Akreditasi</a></li>
+            <li><a href="akreditasi.php">Akreditasi</a></li>
             <li><a href="buku_isbn.php">Program Fasilitasi P4M</a></li>
             <li><a href="berita.php">Berita</a></li>
           </ul>

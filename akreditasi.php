@@ -2,33 +2,34 @@
 include "koneksi.php";
 
 // ==========================================
-// 1. QUERY UNTUK STATISTIK & DIAGRAM
+// 1. SETUP ANGKA SESUAI PERMINTAAN PEMBIMBING
 // ==========================================
+// Angka ini dikunci mati biar ga berantakan
+$total_prodi_nas_kotak  = 26;
+$total_prodi_int_kotak  = 6;
+$total_prodi_cert_kotak = 1;
 
-// Hitung Perguruan Tinggi
+// ==========================================
+// 2. QUERY UNTUK PERGURUAN TINGGI & UNIT KERJA
+// ==========================================
 $q_pt = mysqli_query($koneksi, "SELECT COUNT(DISTINCT id_lembaga) AS total FROM akreditasi_perguruan");
 $total_pt = mysqli_fetch_assoc($q_pt)['total'] ?? 0;
 
-// Hitung Unit Kerja
 $q_unit = mysqli_query($koneksi, "SELECT COUNT(DISTINCT id_unit) AS total FROM akreditasi WHERE akreditasi = 'unit kerja'");
 $total_unit = mysqli_fetch_assoc($q_unit)['total'] ?? 0;
 
-// Hitung Program Studi UNIK (Nasional & Internasional)
-$q_prodi = mysqli_query($koneksi, "
-    SELECT 
-        COUNT(DISTINCT CASE WHEN LOWER(ja.jenis_akreditasi) = 'internasional' THEN a1.id_prodi END) AS total_int,
-        COUNT(DISTINCT CASE WHEN ja.jenis_akreditasi IS NULL OR (LOWER(ja.jenis_akreditasi) != 'internasional' AND LOWER(ja.jenis_akreditasi) NOT LIKE '%tersertifikasi%') THEN a1.id_prodi END) AS total_nas,
-        COUNT(DISTINCT CASE WHEN LOWER(ja.jenis_akreditasi) LIKE '%tersertifikasi%' THEN a1.id_prodi END) AS total_cert
-    FROM akreditasi a1
-    LEFT JOIN jenis_akreditasi ja ON a1.id_jenis = ja.id_jenis
-    WHERE a1.akreditasi = 'program studi'
-");
-$d_prodi = mysqli_fetch_assoc($q_prodi);
-$total_prodi_nas = $d_prodi['total_nas'] ?? 0;
-$total_prodi_int = $d_prodi['total_int'] ?? 0;
-$total_prodi_cert = $d_prodi['total_cert'] ?? 0;
-$total_semua_prodi = $total_prodi_nas + $total_prodi_int + $total_prodi_cert;
-$total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
+// ==========================================
+// 3. LOGIKA GRAFIK DONAT (HANYA NASIONAL & INTERNASIONAL)
+// ==========================================
+// Grafik donat isinya 26 prodi, dengan rincian:
+// - Internasional: 6
+// - Nasional: 26 - 6 = 20
+// Jadi total donat PAS 26.
+$total_prodi_int_grafik = 6;
+$total_prodi_nas_grafik = 26 - 6; // Hasilnya 20
+
+// Total tengah donat
+$total_grafik_prodi = $total_prodi_nas_grafik + $total_prodi_int_grafik; // 20 + 6 = 26
 ?>
 
 <!DOCTYPE html>
@@ -38,38 +39,28 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>Akreditasi Polibatam</title>
-  <meta name="description" content="">
-  <meta name="keywords" content="">
 
-  <!-- Favicons & Fonts -->
   <link href="assets/img/logo/polibatam.svg" rel="icon">
   <link href="https://fonts.googleapis.com" rel="preconnect">
   <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
   
-  <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
   <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
   <link href="assets/vendor/aos/aos.css" rel="stylesheet">
   <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
   <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-  
-  <!-- Main CSS File -->
   <link href="assets/css/main.css" rel="stylesheet">
   
-  <!-- Library Chart.js untuk Diagram -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
-    /* Background Gradasi Putih ke Biru Muda */
     body {
       background: linear-gradient(180deg, #eef7ff 0%, #ffffff 25%, #f4f7f6 100%);
       background-attachment: fixed;
     }
-
-    /* Bagian Judul (Page Title) - Disesuaikan agar tidak tertutup navbar */
     .page-header {
-      padding: 140px 0 40px 0; /* Padding atas diperbesar agar turun ke bawah navbar */
+      padding: 140px 0 40px 0;
       text-align: center;
     }
     .page-header h2 {
@@ -77,8 +68,6 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
       font-weight: 800;
       letter-spacing: -0.5px;
     }
-
-    /* Kotak Pembungkus Besar (Statistik & Donat) */
     .dashboard-wrapper {
       background: #ffffff;
       border-radius: 24px;
@@ -87,8 +76,6 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
       margin-bottom: 3rem;
       border: 1px solid #edf2f7;
     }
-
-    /* Container Diagram */
     .chart-wrapper {
       position: relative; 
       width: 160px; 
@@ -97,10 +84,8 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
     }
     .chart-wrapper canvas {
       position: relative;
-      z-index: 2; /* tooltip harus di atas teks 'TOTAL DATA' */
+      z-index: 2;
     }
-
-    /* Kotak Kecil Statistik */
     .stat-card-small {
       transition: all 0.3s ease;
       border-radius: 16px;
@@ -113,8 +98,6 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
       transform: translateY(-5px);
       box-shadow: 0 10px 20px rgba(13, 131, 253, 0.1) !important;
     }
-
-    /* Efek Kotak Besar Navigasi */
     .card-nav {
       transition: all 0.3s ease-in-out;
       border-radius: 24px;
@@ -123,7 +106,6 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
       overflow: hidden;
       position: relative;
     }
-    /* Garis warna di atas kotak */
     .card-nav::before {
       content: '';
       position: absolute;
@@ -144,8 +126,6 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
     .card-nav:hover .icon-box {
       transform: scale(1.1) rotate(5deg);
     }
-
-    /* Responsive Border untuk Dashboard */
     @media (min-width: 992px) {
       .border-end-lg {
         border-right: 1px solid #edf2f7;
@@ -156,10 +136,8 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
 
 <body class="index-page">
 
-  <!-- HEADER / NAVBAR -->
   <header id="header" class="header d-flex align-items-center fixed-top">
     <div class="header-container container-fluid container-xl position-relative d-flex align-items-center justify-content-between">
-      
       <a href="index.php" class="logo d-flex align-items-center me-auto me-xl-0">
         <img src="assets/img/logo/polibatam.svg" alt="Logo"><h1 class="sitename">P4M Polibatam</h1>
       </a>
@@ -175,9 +153,7 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
                 <li><a href="layanan_pedadogik.php">Layanan Pedadogik</a></li>
             </ul>
           </li>
-          
           <li><a href="akreditasi.php" class="active">Akreditasi</a></li>
-
           <li class="dropdown">
             <a href=""><span>Program Fasilitasi P4M</span><i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
@@ -193,10 +169,7 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
     </div>
   </header>
 
-  <!-- KONTEN UTAMA -->
   <main class="main">
-    
-    <!-- Page Header (Judul yang sudah diperbaiki) -->
     <div class="page-header">
       <div class="container">
         <h2>Akreditasi Polibatam</h2>
@@ -204,25 +177,23 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
       </div>
     </div>
 
-    <!-- SECTION STATISTIK (DASHBOARD) -->
     <section class="section pt-0" data-aos="fade-up">
       <div class="container">
-        
         <div class="dashboard-wrapper">
           <div class="row align-items-center">
             
             <!-- KIRI: Diagram Donat -->
             <div class="col-lg-3 text-center mb-4 mb-lg-0 border-end-lg">
+              <small class="text-muted fw-bold d-block mb-2" style="font-size: 11px; letter-spacing: 0.5px;">AKREDITASI PROGRAM STUDI</small>
               <div class="chart-wrapper">
                 <canvas id="donutChartAkreditasi"></canvas>
               </div>
             </div>
 
-            <!-- KANAN: 5 Kotak Kecil -->
+            <!-- KANAN: 5 Kotak Kecil (Angka pasti 26, 6, 1) -->
             <div class="col-lg-9 ps-lg-5">
               <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
                 
-                <!-- PT -->
                 <div class="col">
                   <div class="stat-card-small p-3 h-100 d-flex flex-column justify-content-between">
                     <div class="mb-3">
@@ -237,7 +208,6 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
                   </div>
                 </div>
 
-                <!-- Unit -->
                 <div class="col">
                   <div class="stat-card-small p-3 h-100 d-flex flex-column justify-content-between">
                     <div class="mb-3">
@@ -252,7 +222,6 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
                   </div>
                 </div>
 
-                <!-- Prodi Nasional -->
                 <div class="col">
                   <div class="stat-card-small p-3 h-100 d-flex flex-column justify-content-between">
                     <div class="mb-3">
@@ -261,13 +230,12 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
                       </div>
                     </div>
                     <div>
-                      <h3 class="fw-bold text-dark mb-1"><?= $total_prodi_nas ?></h3>
+                      <h3 class="fw-bold text-dark mb-1"><?= $total_prodi_nas_kotak ?></h3>
                       <small class="text-muted fw-bold" style="font-size: 11px;">PRODI NASIONAL</small>
                     </div>
                   </div>
                 </div>
 
-                <!-- Prodi Internasional -->
                 <div class="col">
                   <div class="stat-card-small p-3 h-100 d-flex flex-column justify-content-between">
                     <div class="mb-3">
@@ -276,13 +244,12 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
                       </div>
                     </div>
                     <div>
-                      <h3 class="fw-bold text-dark mb-1"><?= $total_prodi_int ?></h3>
+                      <h3 class="fw-bold text-dark mb-1"><?= $total_prodi_int_kotak ?></h3>
                       <small class="text-muted fw-bold" style="font-size: 11px;">PRODI INTERNASIONAL</small>
                     </div>
                   </div>
                 </div>
 
-                <!-- Prodi Tersertifikasi -->
                 <div class="col">
                   <div class="stat-card-small p-3 h-100 d-flex flex-column justify-content-between">
                     <div class="mb-3">
@@ -291,7 +258,7 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
                       </div>
                     </div>
                     <div>
-                      <h3 class="fw-bold text-dark mb-1"><?= $total_prodi_cert ?></h3>
+                      <h3 class="fw-bold text-dark mb-1"><?= $total_prodi_cert_kotak ?></h3>
                       <small class="text-muted fw-bold" style="font-size: 11px;">PRODI TERSERTIFIKASI</small>
                     </div>
                   </div>
@@ -302,16 +269,13 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
 
           </div>
         </div>
-
       </div>
     </section>
 
-    <!-- SECTION 3 KOTAK BESAR NAVIGASI -->
     <section class="section pt-0 pb-5">
       <div class="container">
         <div class="row g-4 justify-content-center">
           
-          <!-- Kotak 1: Perguruan Tinggi -->
           <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
             <a href="akre_perguruan.php" class="text-decoration-none">
               <div class="card h-100 card-nav pt-card text-center p-4">
@@ -327,7 +291,6 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
             </a>
           </div>
 
-          <!-- Kotak 2: Unit Kerja -->
           <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
             <a href="akre_unit.php" class="text-decoration-none">
               <div class="card h-100 card-nav unit-card text-center p-4">
@@ -343,7 +306,6 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
             </a>
           </div>
 
-          <!-- Kotak 3: Program Studi -->
           <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
             <a href="akre_prodi.php" class="text-decoration-none">
               <div class="card h-100 card-nav prodi-card text-center p-4">
@@ -362,10 +324,8 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
         </div>
       </div>
     </section>
-
   </main>
 
-  <!-- FOOTER -->
   <footer id="footer" class="footer">
     <div class="container footer-top">
       <div class="row gy-4">
@@ -436,22 +396,18 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
   <script src="assets/vendor/aos/aos.js"></script>
   <script src="assets/js/main.js"></script>
 
-  <!-- SCRIPT UNTUK MENGGAMBAR DIAGRAM DONAT -->
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       AOS.init({ duration: 600, once: true, easing: 'ease-out-cubic' });
 
+      // Data GRAFIK: Nasional (20) dan Internasional (6). Total PAS 26.
       const dataStatistik = [
-        <?= $total_pt ?>, 
-        <?= $total_unit ?>, 
-        <?= $total_prodi_nas ?>, 
-        <?= $total_prodi_int ?>,
-        <?= $total_prodi_cert ?>
+        <?= $total_prodi_nas_grafik ?>, 
+        <?= $total_prodi_int_grafik ?>
       ];
 
       const ctx = document.getElementById('donutChartAkreditasi').getContext('2d');
-      // Angka total digambar di dalam canvas (setelah pie, sebelum tooltip):
-      // selalu di atas warna, tapi tidak menimpa tooltip.
+
       const angkaTengah = {
         id: 'angkaTengah',
         afterDatasetsDraw(c) {
@@ -465,9 +421,9 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
           ctx.shadowColor = 'rgba(0,0,0,0.55)';
           ctx.shadowBlur = 6;
           ctx.font = '700 32px Nunito, Inter, sans-serif';
-          ctx.fillText('<?= $total_semua_data ?>', cx, cy - 8);
+          ctx.fillText('<?= $total_grafik_prodi ?>', cx, cy - 8);
           ctx.font = '700 11px Nunito, Inter, sans-serif';
-          ctx.fillText('TOTAL DATA', cx, cy + 16);
+          ctx.fillText('TOTAL PRODI', cx, cy + 16);
           ctx.restore();
         }
       };
@@ -476,26 +432,22 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
         type: 'doughnut', 
         plugins: [angkaTengah],
         data: {
-          labels: ['Perguruan Tinggi', 'Unit Kerja', 'Prodi Nasional', 'Prodi Internasional', 'Prodi Tersertifikasi'],
+          labels: ['Prodi Nasional', 'Prodi Internasional'],
           datasets: [{
             data: dataStatistik,
             backgroundColor: [
-              '#0d83fd', // Primary
-              '#198754', // Success
-              '#0dcaf0', // Info
-              '#ffc107', // Warning
-              '#6f42c1'  // Ungu (Tersertifikasi)
+              '#0dcaf0', // Info (Nasional)
+              '#ffc107'  // Warning (Internasional)
             ],
-            borderWidth: 0, // tanpa garis putih pemisah antar segmen
+            borderWidth: 0,
             hoverOffset: 8
           }]
         },
         options: { 
           responsive: true, 
           maintainAspectRatio: false, 
-          cutout: '0%', // pie penuh, tanpa lubang tengah
+          cutout: '0%',
           layout: { padding: 10 },
-          
           plugins: { 
             legend: { display: false },
             tooltip: {
@@ -505,8 +457,6 @@ $total_semua_data = $total_pt + $total_unit + $total_semua_prodi;
               bodyFont: { size: 13 },
               callbacks: {
                 label: function(context) {
-                  // Nama kategori sudah tampil di judul tooltip, jadi cukup angka + persen
-                  // (supaya tidak terpotong oleh batas canvas yang kecil)
                   let total = context.dataset.data.reduce((a, b) => a + b, 0);
                   let percentage = total ? Math.round((context.parsed / total) * 100) + '%' : '0%';
                   return ' ' + context.parsed + ' (' + percentage + ')';

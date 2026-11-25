@@ -29,7 +29,7 @@ $query_tabel = "
                 PARTITION BY a1.id_prodi, 
                 CASE 
                     WHEN LOWER(ja.jenis_akreditasi) = 'internasional' THEN 'int'
-                    WHEN LOWER(ja.jenis_akreditasi) LIKE '%tersertifikasi%' THEN 'cert'
+                    WHEN LOWER(ja.jenis_akreditasi) LIKE '%tersertifikasi%' THEN 'int'
                     ELSE 'nas'
                 END 
                 ORDER BY a1.tanggal_berakhir DESC
@@ -47,20 +47,21 @@ $result_tabel = mysqli_query($koneksi, $query_tabel);
 
 $data_nasional = [];
 $data_internasional = [];
-$data_tersertifikasi = [];
 
+// Statistik Nasional (tetap pakai predikat)
 $total_semua_nas = 0; $total_unggul_nas = 0; $total_baik_sekali_nas = 0; $total_baik_nas = 0; $total_expire_nas = 0; $total_terakreditasi_nas = 0;
-$total_semua_int = 0; $total_unggul_int = 0; $total_baik_sekali_int = 0; $total_baik_int = 0; $total_expire_int = 0; $total_terakreditasi_int = 0;
-$total_semua_cert = 0; $total_unggul_cert = 0; $total_baik_sekali_cert = 0; $total_baik_cert = 0; $total_expire_cert = 0; $total_terakreditasi_cert = 0;
+
+// Statistik Internasional (berdasarkan LEMBAGA — termasuk data tersertifikasi yang digabung)
+$total_semua_int = 0; $total_expire_int = 0;
+$lembaga_int = []; // ['IABEE' => 3, 'ABET' => 2, 'AMTO' => 1, ...]
 
 while ($row = mysqli_fetch_assoc($result_tabel)) {
     $tipe = isset($row['jenis_akreditasi']) ? strtolower($row['jenis_akreditasi']) : 'nasional';
-    
-    // Tentukan Tipe
-    if (strpos($tipe, 'internasional') !== false) {
+    $nama_lembaga = !empty($row['nama_lembaga']) ? trim($row['nama_lembaga']) : 'Lainnya';
+
+    // Tentukan Tipe: Internasional + Tersertifikasi digabung ke 'int'
+    if (strpos($tipe, 'internasional') !== false || strpos($tipe, 'tersertifikasi') !== false) {
         $kategori_tipe = 'int';
-    } elseif (strpos($tipe, 'tersertifikasi') !== false) {
-        $kategori_tipe = 'cert';
     } else {
         $kategori_tipe = 'nas';
     }
@@ -72,7 +73,7 @@ while ($row = mysqli_fetch_assoc($result_tabel)) {
     $is_expire = ($tgl_berakhir_obj >= $tgl_sekarang_obj && $selisih <= 365);
     $row['is_expire'] = $is_expire;
 
-    // Hitung Kategori Predikat
+    // Kategori predikat (untuk Nasional)
     $predikat_lower = strtolower($row['peringkat']);
     $kategori = 'terakreditasi';
     if (strpos($predikat_lower, 'unggul') !== false) $kategori = 'unggul';
@@ -80,23 +81,15 @@ while ($row = mysqli_fetch_assoc($result_tabel)) {
     elseif (strpos($predikat_lower, 'baik') !== false) $kategori = 'baik';
     $row['kategori'] = $kategori;
 
-    // Masukkan ke Array & Hitung Statistik
+    // Kunci lembaga untuk filter (lowercase, underscore)
+    $row['lembaga_key'] = strtolower(preg_replace('/[^a-z0-9]+/i', '_', $nama_lembaga));
+
     if ($kategori_tipe == 'int') {
         $data_internasional[] = $row;
         $total_semua_int++;
-        if ($kategori == 'unggul') $total_unggul_int++;
-        elseif ($kategori == 'baik sekali') $total_baik_sekali_int++;
-        elseif ($kategori == 'baik') $total_baik_int++;
-        else $total_terakreditasi_int++;
         if ($is_expire) $total_expire_int++;
-    } elseif ($kategori_tipe == 'cert') {
-        $data_tersertifikasi[] = $row;
-        $total_semua_cert++;
-        if ($kategori == 'unggul') $total_unggul_cert++;
-        elseif ($kategori == 'baik sekali') $total_baik_sekali_cert++;
-        elseif ($kategori == 'baik') $total_baik_cert++;
-        else $total_terakreditasi_cert++;
-        if ($is_expire) $total_expire_cert++;
+        if (!isset($lembaga_int[$nama_lembaga])) $lembaga_int[$nama_lembaga] = 0;
+        $lembaga_int[$nama_lembaga]++;
     } else {
         $data_nasional[] = $row;
         $total_semua_nas++;
@@ -108,23 +101,23 @@ while ($row = mysqli_fetch_assoc($result_tabel)) {
     }
 }
 
+// Urutkan lembaga berdasarkan jumlah descending
+arsort($lembaga_int);
+
 // Persentase Nasional
 $pct_unggul_nas = ($total_semua_nas > 0) ? round(($total_unggul_nas / $total_semua_nas) * 100) : 0;
 $pct_baik_sekali_nas = ($total_semua_nas > 0) ? round(($total_baik_sekali_nas / $total_semua_nas) * 100) : 0;
 $pct_baik_nas = ($total_semua_nas > 0) ? round(($total_baik_nas / $total_semua_nas) * 100) : 0;
 $pct_terakreditasi_nas = ($total_semua_nas > 0) ? round(($total_terakreditasi_nas / $total_semua_nas) * 100) : 0;
 
-// Persentase Internasional
-$pct_unggul_int = ($total_semua_int > 0) ? round(($total_unggul_int / $total_semua_int) * 100) : 0;
-$pct_baik_sekali_int = ($total_semua_int > 0) ? round(($total_baik_sekali_int / $total_semua_int) * 100) : 0;
-$pct_baik_int = ($total_semua_int > 0) ? round(($total_baik_int / $total_semua_int) * 100) : 0;
-$pct_terakreditasi_int = ($total_semua_int > 0) ? round(($total_terakreditasi_int / $total_semua_int) * 100) : 0;
-
-// Persentase Tersertifikasi
-$pct_unggul_cert = ($total_semua_cert > 0) ? round(($total_unggul_cert / $total_semua_cert) * 100) : 0;
-$pct_baik_sekali_cert = ($total_semua_cert > 0) ? round(($total_baik_sekali_cert / $total_semua_cert) * 100) : 0;
-$pct_baik_cert = ($total_semua_cert > 0) ? round(($total_baik_cert / $total_semua_cert) * 100) : 0;
-$pct_terakreditasi_cert = ($total_semua_cert > 0) ? round(($total_terakreditasi_cert / $total_semua_cert) * 100) : 0;
+// Palet warna dinamis untuk lembaga
+$paletWarna = ['#6BE5E8', '#3DB4D3', '#2B87BB', '#5E3463', '#F59E0B', '#EF4444', '#10B981', '#8B5CF6', '#EC4899', '#6366F1', '#14B8A6', '#F97316'];
+$warnaInt = [];
+$i = 0;
+foreach ($lembaga_int as $nama => $jml) {
+    $warnaInt[$nama] = $paletWarna[$i % count($paletWarna)];
+    $i++;
+}
 
 // Daftar jurusan
 $listJurusan = [];
@@ -156,7 +149,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
   <style>
-    /* UI/UX Diperbagus agar tidak terlihat numpuk */
     body { background-color: #f8f9fa; }
     .nav-tabs-custom { border-bottom: 2px solid #e9ecef; margin-bottom: 25px; }
     .nav-tabs-custom .nav-link { border: none; color: #6c757d; font-weight: 600; padding: 12px 20px; position: relative; background: transparent; transition: 0.3s; }
@@ -169,10 +161,10 @@ while ($j = mysqli_fetch_assoc($qJur)) {
     
     .stat-card { background: #fff; border-radius: 12px; border: 1px solid #e9ecef; padding: 15px; transition: 0.3s; cursor: pointer; height: 100%; display: flex; flex-direction: column; justify-content: center; }
     .stat-card:hover { box-shadow: 0 8px 15px rgba(0,0,0,0.08); transform: translateY(-3px); border-color: #0d83fd; }
-    .stat-card .stat-label { font-size: 13px; color: #6c757d; display: flex; align-items: center; gap: 5px; margin-bottom: 8px; white-space: nowrap; }
+    .stat-card .stat-label { font-size: 13px; color: #6c757d; display: flex; align-items: center; gap: 5px; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .stat-card .stat-number { font-size: 24px; font-weight: 700; color: #1e2b4c; line-height: 1; margin-bottom: 4px; }
     .stat-card .stat-desc { font-size: 12px; color: #adb5bd; }
-    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
     .card-warning { background-color: #fff9e6; border-color: #ffeeba; }
     .card-warning .stat-number, .card-warning .stat-label, .card-warning .stat-desc { color: #856404; }
     
@@ -180,28 +172,39 @@ while ($j = mysqli_fetch_assoc($qJur)) {
     .pill-filter:hover { border-color: #0d83fd; color: #0d83fd; }
     .pill-filter.active { background: #0d83fd; border-color: #0d83fd; color: #fff; box-shadow: 0 4px 10px rgba(13,131,253,0.3); }
     
-    /* Tabel dirapikan agar lega dan profesional */
     .table-custom { vertical-align: middle; margin-bottom: 0; border-color: #edf2f7; }
     .table-custom thead th { background-color: #f8fafc; color: #475569; font-weight: 600; border-bottom: 1px solid #e2e8f0; padding: 16px 20px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
     .table-custom tbody td { padding: 16px 20px; border-bottom: 1px solid #edf2f7; color: #334155; vertical-align: middle; font-size: 14px; }
     .table-custom tbody tr { transition: 0.2s; }
     .table-custom tbody tr:hover { background-color: #f8fbff; }
     
-    /* Gaya predikat dibuat teks biasa tanpa kotak warna */
     .predikat-text { font-weight: 600; color: #1e293b; }
 
-    /* Efek Cahaya (Glow) pada Diagram */
     .chart-container {
       position: relative;
       width: 150px;
       height: 150px;
       margin: 0 auto;
-      filter: drop-shadow(0px 0px 10px rgba(13, 131, 253, 0.4)); /* Efek cahaya kebiruan */
+      filter: drop-shadow(0px 0px 10px rgba(13, 131, 253, 0.4));
       transition: filter 0.3s ease;
     }
     .chart-container:hover {
-      filter: drop-shadow(0px 0px 15px rgba(13, 131, 253, 0.7)); /* Cahaya makin terang saat di-hover */
+      filter: drop-shadow(0px 0px 15px rgba(13, 131, 253, 0.7));
     }
+
+    .stat-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+    }
+    .stat-scroll .stat-card {
+      min-width: 140px;
+      flex: 1 0 140px;
+    }
+    .stat-scroll::-webkit-scrollbar { height: 6px; }
+    .stat-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
   </style>
 </head>
 
@@ -265,9 +268,6 @@ while ($j = mysqli_fetch_assoc($qJur)) {
           </li>
           <li class="nav-item" role="presentation">
             <button class="nav-link" id="internasional-tab" data-bs-toggle="tab" data-bs-target="#internasional" type="button" role="tab">Internasional</button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tersertifikasi-tab" data-bs-toggle="tab" data-bs-target="#tersertifikasi" type="button" role="tab">Tersertifikasi</button>
           </li>
         </ul>
 
@@ -363,7 +363,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                     <tbody>
                       <?php if(count($data_nasional) > 0): ?>
                         <?php $no = 1; foreach($data_nasional as $prodi): ?>
-                          <tr class="prodi-row-nas" data-jurusan="<?= htmlspecialchars($prodi['nama_jurusan']) ?>" data-kategori="<?= $prodi['kategori'] ?>" data-expire="<?= $prodi['is_expire'] ? '1' : '0' ?>">
+                          <tr class="prodi-row-nas" data-jurusan="<?= htmlspecialchars($prodi['nama_jurusan']) ?>" data-kategori="<?= $prodi['kategori'] ?>" data-lembaga="<?= htmlspecialchars($prodi['lembaga_key']) ?>" data-expire="<?= $prodi['is_expire'] ? '1' : '0' ?>">
                             <td class="text-center"><?= $no++ ?></td>
                             <td>
                               <div class="fw-bold text-dark"><?= htmlspecialchars($prodi['nama_program_studi']) ?></div>
@@ -402,7 +402,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
             </div>
           </div>
 
-          <!-- ================= TAB INTERNASIONAL ================= -->
+          <!-- ================= TAB INTERNASIONAL (termasuk Tersertifikasi) ================= -->
           <div class="tab-pane fade" id="internasional" role="tabpanel">
             <div class="row g-3 mb-4 align-items-center">
               <div class="col-lg-3">
@@ -418,41 +418,30 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                   </button>
                 </div>
 
-                <div class="row g-2">
-                  <div class="col">
-                    <div class="stat-card" id="stat-card-int-unggul" onclick="toggleFilterFromCard('internasional', 'unggul')">
-                      <div class="stat-label"><span class="dot" style="background:#6BE5E8;"></span> Unggul</div>
-                      <div class="stat-number"><?= $total_unggul_int ?></div>
-                      <div class="stat-desc"><?= $pct_unggul_int ?>%</div>
+                <!-- Statistik dinamis berdasarkan LEMBAGA (termasuk AMTO dari data tersertifikasi) -->
+                <div class="stat-scroll">
+                  <?php if(count($lembaga_int) > 0): ?>
+                    <?php foreach($lembaga_int as $nama_lem => $jml): 
+                      $pct = ($total_semua_int > 0) ? round(($jml / $total_semua_int) * 100) : 0;
+                      $key = strtolower(preg_replace('/[^a-z0-9]+/i', '_', $nama_lem));
+                      $warna = $warnaInt[$nama_lem];
+                    ?>
+                      <div class="stat-card" id="stat-card-int-<?= $key ?>" onclick="toggleFilterFromCard('internasional', '<?= $key ?>')">
+                        <div class="stat-label"><span class="dot" style="background:<?= $warna ?>;"></span> <?= htmlspecialchars($nama_lem) ?></div>
+                        <div class="stat-number"><?= $jml ?></div>
+                        <div class="stat-desc"><?= $pct ?>%</div>
+                      </div>
+                    <?php endforeach; ?>
+                  <?php else: ?>
+                    <div class="stat-card" style="cursor:default; opacity:0.6;">
+                      <div class="stat-label">Belum ada data</div>
+                      <div class="stat-number">0</div>
                     </div>
-                  </div>
-                  <div class="col">
-                    <div class="stat-card" id="stat-card-int-baik sekali" onclick="toggleFilterFromCard('internasional', 'baik sekali')">
-                      <div class="stat-label"><span class="dot" style="background:#3DB4D3;"></span> Baik Sekali</div>
-                      <div class="stat-number"><?= $total_baik_sekali_int ?></div>
-                      <div class="stat-desc"><?= $pct_baik_sekali_int ?>%</div>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="stat-card" id="stat-card-int-baik" onclick="toggleFilterFromCard('internasional', 'baik')">
-                      <div class="stat-label"><span class="dot" style="background:#2B87BB;"></span> Baik</div>
-                      <div class="stat-number"><?= $total_baik_int ?></div>
-                      <div class="stat-desc"><?= $pct_baik_int ?>%</div>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="stat-card" id="stat-card-int-terakreditasi" onclick="toggleFilterFromCard('internasional', 'terakreditasi')">
-                      <div class="stat-label"><span class="dot" style="background:#5E3463;"></span> Terakreditasi</div>
-                      <div class="stat-number"><?= $total_terakreditasi_int ?></div>
-                      <div class="stat-desc"><?= $pct_terakreditasi_int ?>%</div>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="stat-card card-warning" id="stat-card-int-expire" onclick="setFilter('internasional', 'expire', '1')">
-                      <div class="stat-label">Masa Habis Berlaku</div>
-                      <div class="stat-number"><?= $total_expire_int ?></div>
-                      <div class="stat-desc">Reminder KPS</div>
-                    </div>
+                  <?php endif; ?>
+                  <div class="stat-card card-warning" id="stat-card-int-expire" onclick="setFilter('internasional', 'expire', '1')">
+                    <div class="stat-label">Masa Habis Berlaku</div>
+                    <div class="stat-number"><?= $total_expire_int ?></div>
+                    <div class="stat-desc">Reminder KPS</div>
                   </div>
                 </div>
               </div>
@@ -471,7 +460,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
             <div class="modern-card">
               <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
-                  <h6 class="fw-bold mb-1" id="judul-tabel-int">Daftar Prodi (Internasional)</h6>
+                  <h6 class="fw-bold mb-1" id="judul-tabel-int">Daftar Prodi (Internasional & Tersertifikasi)</h6>
                   <p class="text-muted small mb-0">Hanya menampilkan data akreditasi terbaru yang masih aktif</p>
                 </div>
                 <input type="text" id="search-input-int" class="form-control form-control-sm" placeholder="Cari nama prodi..." style="width: 250px; border-radius: 20px;" onkeyup="searchTable('internasional')">
@@ -492,7 +481,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                     <tbody>
                       <?php if(count($data_internasional) > 0): ?>
                         <?php $no_int = 1; foreach($data_internasional as $prodi_int): ?>
-                          <tr class="prodi-row-int" data-jurusan="<?= htmlspecialchars($prodi_int['nama_jurusan']) ?>" data-kategori="<?= $prodi_int['kategori'] ?>" data-expire="<?= $prodi_int['is_expire'] ? '1' : '0' ?>">
+                          <tr class="prodi-row-int" data-jurusan="<?= htmlspecialchars($prodi_int['nama_jurusan']) ?>" data-kategori="<?= $prodi_int['kategori'] ?>" data-lembaga="<?= htmlspecialchars($prodi_int['lembaga_key']) ?>" data-expire="<?= $prodi_int['is_expire'] ? '1' : '0' ?>">
                             <td class="text-center"><?= $no_int++ ?></td>
                             <td>
                               <div class="fw-bold text-dark"><?= htmlspecialchars($prodi_int['nama_program_studi']) ?></div>
@@ -520,136 +509,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
                           <td colspan="6" class="text-center py-5">
                             <div class="text-muted mb-2"><i class="bi bi-globe fs-1"></i></div>
                             <h6 class="fw-bold text-dark">Belum Ada Data Internasional</h6>
-                            <p class="small text-muted mb-0">Data akreditasi program studi internasional belum diisi.</p>
-                          </td>
-                        </tr>
-                      <?php endif; ?>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- ================= TAB TERSERTIFIKASI ================= -->
-          <div class="tab-pane fade" id="tersertifikasi" role="tabpanel">
-            <div class="row g-3 mb-4 align-items-center">
-              <div class="col-lg-3">
-                <div class="chart-container">
-                  <canvas id="donutChartTersertifikasi"></canvas>
-                </div>
-              </div>
-
-              <div class="col-lg-9">
-                <div class="d-flex justify-content-end mb-2">
-                  <button onclick="exportExcel('tersertifikasi')" class="btn btn-success btn-sm rounded-pill px-3 shadow-sm">
-                    <i class="bi bi-file-earmark-excel-fill me-1"></i> Export Excel
-                  </button>
-                </div>
-
-                <div class="row g-2">
-                  <div class="col">
-                    <div class="stat-card" id="stat-card-cert-unggul" onclick="toggleFilterFromCard('tersertifikasi', 'unggul')">
-                      <div class="stat-label"><span class="dot" style="background:#6BE5E8;"></span> Unggul</div>
-                      <div class="stat-number"><?= $total_unggul_cert ?></div>
-                      <div class="stat-desc"><?= $pct_unggul_cert ?>%</div>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="stat-card" id="stat-card-cert-baik sekali" onclick="toggleFilterFromCard('tersertifikasi', 'baik sekali')">
-                      <div class="stat-label"><span class="dot" style="background:#3DB4D3;"></span> Baik Sekali</div>
-                      <div class="stat-number"><?= $total_baik_sekali_cert ?></div>
-                      <div class="stat-desc"><?= $pct_baik_sekali_cert ?>%</div>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="stat-card" id="stat-card-cert-baik" onclick="toggleFilterFromCard('tersertifikasi', 'baik')">
-                      <div class="stat-label"><span class="dot" style="background:#2B87BB;"></span> Baik</div>
-                      <div class="stat-number"><?= $total_baik_cert ?></div>
-                      <div class="stat-desc"><?= $pct_baik_cert ?>%</div>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="stat-card" id="stat-card-cert-terakreditasi" onclick="toggleFilterFromCard('tersertifikasi', 'terakreditasi')">
-                      <div class="stat-label"><span class="dot" style="background:#5E3463;"></span> Terakreditasi</div>
-                      <div class="stat-number"><?= $total_terakreditasi_cert ?></div>
-                      <div class="stat-desc"><?= $pct_terakreditasi_cert ?>%</div>
-                    </div>
-                  </div>
-                  <div class="col">
-                    <div class="stat-card card-warning" id="stat-card-cert-expire" onclick="setFilter('tersertifikasi', 'expire', '1')">
-                      <div class="stat-label">Masa Habis Berlaku</div>
-                      <div class="stat-number"><?= $total_expire_cert ?></div>
-                      <div class="stat-desc">Reminder KPS</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mb-4">
-              <h6 class="fw-bold mb-2">Pilih Jurusan (Filter)</h6>
-              <div class="d-flex flex-wrap gap-2" id="filter-pills-cert">
-                <button class="pill-filter active" onclick="setFilter('tersertifikasi', 'jurusan', 'Semua Jurusan')">Semua Jurusan</button>
-                <?php foreach ($listJurusan as $jur): ?>
-                  <button class="pill-filter" onclick="setFilter('tersertifikasi', 'jurusan', '<?= htmlspecialchars($jur, ENT_QUOTES) ?>')"><?= htmlspecialchars($jur) ?></button>
-                <?php endforeach; ?>
-              </div>
-            </div>
-
-            <div class="modern-card">
-              <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div>
-                  <h6 class="fw-bold mb-1" id="judul-tabel-cert">Daftar Prodi (Tersertifikasi)</h6>
-                  <p class="text-muted small mb-0">Hanya menampilkan data akreditasi terbaru yang masih aktif</p>
-                </div>
-                <input type="text" id="search-input-cert" class="form-control form-control-sm" placeholder="Cari nama prodi..." style="width: 250px; border-radius: 20px;" onkeyup="searchTable('tersertifikasi')">
-              </div>
-              <div class="card-body p-0">
-                <div class="table-responsive">
-                  <table class="table table-custom table-hover" id="tabelTersertifikasi">
-                    <thead>
-                      <tr>
-                        <th width="5%" class="text-center">No</th>
-                        <th width="30%">Program Studi</th>
-                        <th class="text-center">Predikat</th>
-                        <th class="text-center">Lembaga</th>
-                        <th class="text-center">Berlaku Sampai</th>
-                        <th class="text-center">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php if(count($data_tersertifikasi) > 0): ?>
-                        <?php $no_cert = 1; foreach($data_tersertifikasi as $prodi_cert): ?>
-                          <tr class="prodi-row-cert" data-jurusan="<?= htmlspecialchars($prodi_cert['nama_jurusan']) ?>" data-kategori="<?= $prodi_cert['kategori'] ?>" data-expire="<?= $prodi_cert['is_expire'] ? '1' : '0' ?>">
-                            <td class="text-center"><?= $no_cert++ ?></td>
-                            <td>
-                              <div class="fw-bold text-dark"><?= htmlspecialchars($prodi_cert['nama_program_studi']) ?></div>
-                              <div class="text-muted small"><?= htmlspecialchars($prodi_cert['nama_jurusan']) ?></div>
-                            </td>
-                            <td class="text-center">
-                                <span class="predikat-text"><?= htmlspecialchars($prodi_cert['peringkat']) ?></span>
-                            </td>
-                            <td class="text-center text-muted"><?= htmlspecialchars($prodi_cert['nama_lembaga']) ?></td>
-                            <td class="text-center">
-                                <?= date('d M Y', strtotime($prodi_cert['tanggal_berakhir'])) ?>
-                                <?php if($prodi_cert['is_expire']): ?>
-                                    <br><span class="badge bg-danger" style="font-size: 10px;">Akan Berakhir</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-center">
-                              <a href="akre_prodi_detail.php?id=<?= $prodi_cert['id_prodi'] ?>" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                Detail
-                              </a>
-                            </td>
-                          </tr>
-                        <?php endforeach; ?>
-                      <?php else: ?>
-                        <tr>
-                          <td colspan="6" class="text-center py-5">
-                            <div class="text-muted mb-2"><i class="bi bi-patch-check fs-1"></i></div>
-                            <h6 class="fw-bold text-dark">Belum Ada Data Tersertifikasi</h6>
-                            <p class="small text-muted mb-0">Data akreditasi program studi tersertifikasi belum diisi.</p>
+                            <p class="small text-muted mb-0">Data akreditasi program studi internasional & tersertifikasi belum diisi.</p>
                           </td>
                         </tr>
                       <?php endif; ?>
@@ -742,17 +602,30 @@ while ($j = mysqli_fetch_assoc($qJur)) {
     document.addEventListener("DOMContentLoaded", function() {
       AOS.init({ duration: 600, once: true, easing: 'ease-out-cubic' });
 
-      const softColors = ['#6BE5E8', '#3DB4D3', '#2B87BB', '#5E3463']; 
-      const labelsKategori = ['Unggul', 'Baik Sekali', 'Baik', 'Terakreditasi'];
+      const labelsNasional = ['Unggul', 'Baik Sekali', 'Baik', 'Terakreditasi'];
+      const dataNasional = [<?= $total_unggul_nas ?>, <?= $total_baik_sekali_nas ?>, <?= $total_baik_nas ?>, <?= $total_terakreditasi_nas ?>];
+      const colorsNasional = ['#6BE5E8', '#3DB4D3', '#2B87BB', '#5E3463'];
+      const totalNasional = <?= $total_semua_nas ?>;
 
-      // Simpan objek chart di sini agar bisa diakses secara global
+      const labelsInt = <?= json_encode(array_keys($lembaga_int)) ?>;
+      const dataInt = <?= json_encode(array_values($lembaga_int)) ?>;
+      const colorsInt = <?= json_encode(array_values($warnaInt)) ?>;
+      const totalInt = <?= $total_semua_int ?>;
+
       window.chartInstances = {};
 
-      function buatDonut(suf, data, total) {
+      function buatDonut(suf, labels, data, colors, total, tabKey) {
         const canvas = document.getElementById('donutChart' + suf);
         let terpilih = null;
         let teksAngka = String(total);
         let teksLabel = 'data';
+
+        if (data.length === 0 || total === 0) {
+          labels = ['Kosong'];
+          data = [1];
+          colors = ['#e9ecef'];
+          teksAngka = '0';
+        }
 
         const angkaTengah = {
           id: 'angkaTengah',
@@ -778,27 +651,25 @@ while ($j = mysqli_fetch_assoc($qJur)) {
           type: 'doughnut',
           plugins: [angkaTengah],
           data: {
-            labels: labelsKategori,
+            labels: labels,
             datasets: [{
               data: data,
-              backgroundColor: softColors,
+              backgroundColor: colors,
               borderWidth: 0,
-              offset: [0, 0, 0, 0],
+              offset: data.map(() => 0),
               hoverOffset: 4
             }]
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '0%', 
+            cutout: '0%',
             layout: { padding: 6 },
             plugins: {
               legend: { display: false },
               tooltip: {
                 backgroundColor: 'rgba(0,0,0,0.92)',
                 padding: 8,
-                titleFont: { size: 12, weight: 'bold' },
-                bodyFont: { size: 12 },
                 callbacks: {
                   title: (items) => items[0].label,
                   label: (ctx) => {
@@ -811,65 +682,62 @@ while ($j = mysqli_fetch_assoc($qJur)) {
             },
             onHover: (evt, els) => { evt.native.target.style.cursor = els.length ? 'pointer' : 'default'; },
             onClick: (evt, els) => {
-              const tab = suf.toLowerCase() === 'nasional' ? 'nasional' : (suf.toLowerCase() === 'internasional' ? 'internasional' : 'tersertifikasi');
-              
+              if (data.length === 1 && data[0] === 1) return;
               if (!els.length || terpilih === els[0].index) {
-                // Jika diklik di area kosong atau elemen yang sama, reset filter
                 terpilih = null;
-                window.setFilter(tab, 'kategori', 'semua');
+                window.setFilter(tabKey, 'kategori', 'semua');
               } else {
-                // Jika memilih elemen baru
                 terpilih = els[0].index;
-                let kategoriName = labelsKategori[terpilih].toLowerCase();
-                window.setFilter(tab, 'kategori', kategoriName);
+                let kategoriName = labels[terpilih].toLowerCase();
+                window.setFilter(tabKey, 'kategori', kategoriName);
               }
-              
               const ds = chart.data.datasets[0];
               ds.offset = ds.data.map((_, i) => i === terpilih ? 6 : 0);
               teksAngka = String(terpilih === null ? total : data[terpilih]);
-              teksLabel = terpilih === null ? 'data' : labelsKategori[terpilih];
+              teksLabel = terpilih === null ? 'data' : labels[terpilih];
               chart.update();
             }
           }
         });
 
-        // Simpan instance chart
         window.chartInstances[suf.toLowerCase()] = {
           chart: chart,
           data: data,
           total: total,
-          labels: labelsKategori,
+          labels: labels,
           updateVisual: function(kategoriName) {
             if (!kategoriName || kategoriName === 'semua' || kategoriName === 'expire') {
               terpilih = null;
             } else {
               terpilih = this.labels.map(l => l.toLowerCase()).indexOf(kategoriName);
-              if (terpilih === -1) terpilih = null; 
+              if (terpilih === -1) terpilih = null;
             }
             const ds = this.chart.data.datasets[0];
             ds.offset = ds.data.map((_, i) => i === terpilih ? 6 : 0);
-            teksAngka = String(terpilih === null ? this.total : this.data[terpilih]);
+            teksAngka = String(terpilih === null ? this.total : (this.data[terpilih] || 0));
             teksLabel = terpilih === null ? 'data' : this.labels[terpilih];
             this.chart.update();
           }
         };
       }
 
-      buatDonut('Nasional', [<?= $total_unggul_nas ?>, <?= $total_baik_sekali_nas ?>, <?= $total_baik_nas ?>, <?= $total_terakreditasi_nas ?>], <?= $total_semua_nas ?>);
-      buatDonut('Internasional', [<?= $total_unggul_int ?>, <?= $total_baik_sekali_int ?>, <?= $total_baik_int ?>, <?= $total_terakreditasi_int ?>], <?= $total_semua_int ?>);
-      buatDonut('Tersertifikasi', [<?= $total_unggul_cert ?>, <?= $total_baik_sekali_cert ?>, <?= $total_baik_cert ?>, <?= $total_terakreditasi_cert ?>], <?= $total_semua_cert ?>);
+      buatDonut('Nasional', labelsNasional, dataNasional, colorsNasional, totalNasional, 'nasional');
+      buatDonut('Internasional', labelsInt.length ? labelsInt : ['Kosong'], dataInt.length ? dataInt : [0], colorsInt.length ? colorsInt : ['#e9ecef'], totalInt, 'internasional');
     });
 
     let filterState = {
       nasional: { jurusan: "Semua Jurusan", kategori: "semua", expire: "0", search: "" },
-      internasional: { jurusan: "Semua Jurusan", kategori: "semua", expire: "0", search: "" },
-      tersertifikasi: { jurusan: "Semua Jurusan", kategori: "semua", expire: "0", search: "" }
+      internasional: { jurusan: "Semua Jurusan", kategori: "semua", expire: "0", search: "" }
     };
 
-    function suffix(tab) { 
+    function suffix(tab) {
         if(tab === 'nasional') return 'nas';
-        if(tab === 'internasional') return 'int';
-        return 'cert';
+        return 'int';
+    }
+
+    function tabToChartKey(tab) {
+      if (tab === 'nasional') return 'nasional';
+      return 'internasional';
     }
 
     window.setFilter = function(tab, type, value) {
@@ -878,10 +746,9 @@ while ($j = mysqli_fetch_assoc($qJur)) {
       if (type === 'jurusan') {
         filterState[tab].kategori = "semua";
         filterState[tab].expire = "0";
-        
-        // Reset visual chart ke default saat ganti jurusan
-        if(window.chartInstances && window.chartInstances[tab]) {
-            window.chartInstances[tab].updateVisual('semua');
+
+        if(window.chartInstances && window.chartInstances[tabToChartKey(tab)]) {
+            window.chartInstances[tabToChartKey(tab)].updateVisual('semua');
         }
 
         document.querySelectorAll(`#filter-pills-${suffix(tab)} .pill-filter`).forEach(btn => btn.classList.remove('active'));
@@ -892,15 +759,14 @@ while ($j = mysqli_fetch_assoc($qJur)) {
         filterState[tab].jurusan = "Semua Jurusan";
         if (type === 'kategori') {
             filterState[tab].expire = "0";
-            // Update visual chart jika yang diklik adalah kotak statistik
-            if(window.chartInstances && window.chartInstances[tab]) {
-                window.chartInstances[tab].updateVisual(value);
+            if(window.chartInstances && window.chartInstances[tabToChartKey(tab)]) {
+                window.chartInstances[tabToChartKey(tab)].updateVisual(value);
             }
         }
         if (type === 'expire') {
             filterState[tab].kategori = "semua";
-            if(window.chartInstances && window.chartInstances[tab]) {
-                window.chartInstances[tab].updateVisual('semua');
+            if(window.chartInstances && window.chartInstances[tabToChartKey(tab)]) {
+                window.chartInstances[tabToChartKey(tab)].updateVisual('semua');
             }
         }
         document.querySelectorAll(`#filter-pills-${suffix(tab)} .pill-filter`).forEach(btn => btn.classList.remove('active'));
@@ -910,15 +776,13 @@ while ($j = mysqli_fetch_assoc($qJur)) {
       applyFilter(tab);
     };
 
-    // Fungsi Khusus untuk Kotak Statistik agar bisa klik 2x (Toggle)
     window.toggleFilterFromCard = function(tab, kategori) {
-        if (filterState[tab].kategori === kategori) {
-            // Jika diklik lagi, kembalikan ke semua
-            setFilter(tab, 'kategori', 'semua');
-        } else {
-            // Jika baru diklik, filter data
-            setFilter(tab, 'kategori', kategori);
-        }
+      const current = filterState[tab].kategori;
+      if (current === kategori) {
+        setFilter(tab, 'kategori', 'semua');
+      } else {
+        setFilter(tab, 'kategori', kategori);
+      }
     };
 
     function applyFilter(tab) {
@@ -926,8 +790,13 @@ while ($j = mysqli_fetch_assoc($qJur)) {
       const rows = document.querySelectorAll(`.prodi-row-${suffix(tab)}`);
       rows.forEach(row => {
         const matchJurusan = (st.jurusan === "Semua Jurusan" || row.dataset.jurusan.toLowerCase() === st.jurusan.toLowerCase());
-        const matchKategori = (st.kategori === "semua" || row.dataset.kategori === st.kategori);
-        const matchExpire = (st.expire === "0" || row.dataset.expire === "1");
+        let matchKategori;
+        if (tab === 'nasional') {
+          matchKategori = (st.kategori === "semua" || row.dataset.kategori === st.kategori);
+        } else {
+          matchKategori = (st.kategori === "semua" || row.dataset.lembaga === st.kategori);
+        }
+        const matchExpire = (st.expire === "0" || row.dataset.expire === '1');
         const matchSearch = (st.search === "" || row.innerText.toLowerCase().includes(st.search));
         row.style.display = (matchJurusan && matchKategori && matchExpire && matchSearch) ? '' : 'none';
       });
@@ -939,36 +808,36 @@ while ($j = mysqli_fetch_assoc($qJur)) {
     };
 
     window.exportExcel = function(tab) {
-      const tableId = tab === 'nasional' ? 'tabelNasional' : (tab === 'internasional' ? 'tabelInternasional' : 'tabelTersertifikasi');
-      const title = tab === 'nasional' ? 'AKREDITASI PROGRAM STUDI NASIONAL' : (tab === 'internasional' ? 'AKREDITASI PROGRAM STUDI INTERNASIONAL' : 'SERTIFIKASI PROGRAM STUDI');
-      const fileName = tab === 'nasional' ? 'Akreditasi_Prodi_Nasional.xlsx' : (tab === 'internasional' ? 'Akreditasi_Prodi_Internasional.xlsx' : 'Sertifikasi_Prodi.xlsx');
+      const tableId = tab === 'nasional' ? 'tabelNasional' : 'tabelInternasional';
+      const title = tab === 'nasional' ? 'AKREDITASI PROGRAM STUDI NASIONAL' : 'AKREDITASI & SERTIFIKASI PROGRAM STUDI INTERNASIONAL';
+      const fileName = tab === 'nasional' ? 'Akreditasi_Prodi_Nasional.xlsx' : 'Akreditasi_Prodi_Internasional.xlsx';
 
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Data Akreditasi', {
         pageSetup: { paperSize: 9, orientation: 'landscape', fitToPage: true, fitToWidth: 1, margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75 } }
       });
 
-      worksheet.mergeCells('A1:F1'); 
+      worksheet.mergeCells('A1:F1');
       const titleCell = worksheet.getCell('A1');
       titleCell.value = title;
       titleCell.font = { name: 'Arial', size: 16, bold: true, color: { argb: 'FF17365D' } };
       titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
       worksheet.getRow(1).height = 35;
 
-      worksheet.mergeCells('A2:F2'); 
+      worksheet.mergeCells('A2:F2');
       const subTitleCell = worksheet.getCell('A2');
       subTitleCell.value = 'Politeknik Negeri Batam - Pusat Penjaminan Mutu dan Pengembangan Pembelajaran';
       subTitleCell.font = { name: 'Arial', size: 10, italic: true, color: { argb: 'FF555555' } };
       subTitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
-      worksheet.mergeCells('A3:F3'); 
+      worksheet.mergeCells('A3:F3');
       worksheet.getCell('A3').border = { bottom: { style: 'medium', color: { argb: 'FF17365D' } } };
 
       const headerRow = worksheet.getRow(5);
       headerRow.values = ['No', 'Jurusan', 'Program Studi', 'Predikat', 'Lembaga', 'Berlaku Sampai'];
-      
+
       worksheet.columns = [
-        { key: 'no', width: 6 }, { key: 'jurusan', width: 25 }, { key: 'prodi', width: 60 }, 
+        { key: 'no', width: 6 }, { key: 'jurusan', width: 25 }, { key: 'prodi', width: 60 },
         { key: 'predikat', width: 20 }, { key: 'lembaga', width: 30 }, { key: 'berakhir', width: 20 }
       ];
 
@@ -981,7 +850,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
 
       const table = document.getElementById(tableId);
       const rows = table.querySelectorAll('tbody tr');
-      let currentRowIndex = 6; 
+      let currentRowIndex = 6;
       let rowCounter = 1;
 
       rows.forEach(function(row) {
@@ -992,7 +861,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
           const predikat = cols[2].innerText.trim();
           const lembaga = cols[3].innerText.trim();
           const berakhir = cols[4].innerText.trim();
-          
+
           const dataRow = worksheet.getRow(currentRowIndex);
           dataRow.values = [rowCounter++, jurusan, prodi, predikat, lembaga, berakhir];
 
@@ -1001,7 +870,7 @@ while ($j = mysqli_fetch_assoc($qJur)) {
             cell.alignment = { vertical: 'middle', wrapText: true };
             cell.border = { top: { style: 'thin', color: { argb: 'FFD6DCE5' } }, bottom: { style: 'thin', color: { argb: 'FFD6DCE5' } }, left: { style: 'thin', color: { argb: 'FFD6DCE5' } }, right: { style: 'thin', color: { argb: 'FFD6DCE5' } } };
           });
-          dataRow.height = 30; 
+          dataRow.height = 30;
           currentRowIndex++;
         }
       });

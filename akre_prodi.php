@@ -59,6 +59,11 @@ while ($row = mysqli_fetch_assoc($result_tabel)) {
     $tipe = isset($row['jenis_akreditasi']) ? strtolower($row['jenis_akreditasi']) : 'nasional';
     $nama_lembaga = !empty($row['nama_lembaga']) ? trim($row['nama_lembaga']) : 'Lainnya';
 
+    // Ubah nama lembaga "Ministry Of Transportation Direct" menjadi "AMTO"
+    if (stripos($nama_lembaga, 'Ministry Of Transportation') !== false) {
+        $nama_lembaga = 'AMTO';
+    }
+
     // Tentukan Tipe: Internasional + Tersertifikasi digabung ke 'int'
     if (strpos($tipe, 'internasional') !== false || strpos($tipe, 'tersertifikasi') !== false) {
         $kategori_tipe = 'int';
